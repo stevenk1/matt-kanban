@@ -3,7 +3,18 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { Board, Project, Story } from '../board/board';
-import { feature, featurePane, NOW, project, renderBoardView, selectFeature, ticket, boardWith } from './board-fixtures';
+import {
+  boardOf,
+  boardWith,
+  clickCard,
+  feature,
+  featurePane,
+  NOW,
+  project,
+  renderBoardView,
+  selectFeature,
+  ticket,
+} from './board-fixtures';
 
 describe('BoardView: sidebar', () => {
   it('lists All Projects, then each Project with its tracker type', () => {
@@ -207,10 +218,7 @@ describe('BoardView: live update', () => {
     const sidebar = screen.getByRole('navigation', { name: 'Projects' });
     await user.click(within(sidebar).getByRole('button', { name: /^beta/ }));
     await selectFeature('Main work');
-    const card = within(featurePane())
-      .getAllByRole('button')
-      .find((b) => b.textContent?.startsWith('02'));
-    await user.click(card!);
+    await clickCard('02');
 
     // A new Project sorts first, alpha changes, and the open Ticket is now Done with a new body.
     showBoard(boardWith({
@@ -306,5 +314,96 @@ describe('BoardView: revealing a Ticket from the menu-bar popover', () => {
     expect(selectedProject()).toHaveAccessibleName(/^All Projects/);
     expect(selectedFeature()).toHaveAccessibleName('Rail page');
     expect(within(featurePane()).getByRole('heading', { name: 'Rail page' })).toBeInTheDocument();
+  });
+});
+
+describe('BoardView: view animations', () => {
+  /** The right pane's view, which plays its enter animation once, when it is inserted. */
+  function paneView() {
+    const view = featurePane().firstElementChild;
+    if (!view) throw new Error('The Feature pane is empty');
+    return view;
+  }
+
+  function readWith(body: string): Board {
+    return boardOf(feature('Rail page', [ticket('01', 'ready'), ticket('02', 'ready', { body: `# 02: x\n\n${body}\n` })]));
+  }
+
+  it('keeps the Feature view and the Ticket detail across a new Board, so no view animation plays again', async () => {
+    const { showBoard } = renderBoardView(readWith('First read.'));
+    await selectFeature('Rail page');
+    const featureView = paneView();
+
+    showBoard(readWith('Second read.'));
+    expect(paneView()).toBe(featureView);
+
+    await clickCard('02');
+    const detail = within(featurePane()).getByRole('article');
+
+    showBoard(readWith('Third read.'));
+    expect(within(featurePane()).getByRole('article')).toBe(detail);
+    expect(detail).toHaveTextContent('Third read.');
+
+    await userEvent.setup().click(within(featurePane()).getByRole('button', { name: /Back to/ }));
+    const featureViewAgain = paneView();
+
+    showBoard(readWith('Fourth read.'));
+    expect(paneView()).toBe(featureViewAgain);
+  });
+
+  it('keeps the Feature list across a new Board that brings the first Features, so its fade doesn’t play', () => {
+    const { showBoard } = renderBoardView(boardWith({ readAt: NOW, projects: [project('alpha')] }));
+    const rows = within(screen.getByRole('region', { name: 'Features' })).getByRole('list');
+
+    showBoard(boardOf(feature('Rail page', [ticket('01', 'ready')])));
+
+    expect(within(screen.getByRole('region', { name: 'Features' })).getByRole('list')).toBe(rows);
+    expect(within(rows).getByRole('button', { name: 'Rail page' })).toBeInTheDocument();
+  });
+
+  it('slides a Ticket in from the right, Back slides its Feature in from the left, and a Feature switch fades', async () => {
+    renderBoardView(boardOf(feature('Rail page', [ticket('02', 'ready')]), feature('Main work', [ticket('01', 'ready')])));
+
+    await selectFeature('Rail page');
+    expect(paneView()).toHaveClass('feature-pane-view-switch');
+
+    const railPage = paneView();
+    await clickCard('02');
+    expect(paneView()).not.toBe(railPage);
+    expect(paneView()).toHaveClass('feature-pane-view-open');
+
+    await userEvent.setup().click(within(featurePane()).getByRole('button', { name: /Back to/ }));
+    expect(paneView()).toHaveClass('feature-pane-view-back');
+
+    const railPageAgain = paneView();
+    await selectFeature('Main work');
+    expect(paneView()).not.toBe(railPageAgain);
+    expect(paneView()).toHaveClass('feature-pane-view-switch');
+  });
+
+  it('fades the Feature pane and the Feature list when another Project is picked', async () => {
+    const user = userEvent.setup();
+    renderBoardView(
+      boardWith({
+        readAt: NOW,
+        projects: [project('alpha', [feature('Rail page', [])]), project('beta', [feature('Main work', [])])],
+      }),
+    );
+    const rows = () => within(screen.getByRole('region', { name: 'Features' })).getByRole('list');
+    const allRows = rows();
+
+    await user.click(within(screen.getByRole('navigation', { name: 'Projects' })).getByRole('button', { name: /^beta/ }));
+
+    expect(rows()).not.toBe(allRows);
+    expect(paneView()).toHaveClass('feature-pane-view-switch');
+  });
+
+  it('slides a Ticket revealed from the menu-bar popover in from the right', () => {
+    const { reveal } = renderBoardView(boardOf(feature('Rail page', [ticket('02', 'ready')])));
+
+    reveal('alpha/rail-page/02');
+
+    expect(within(featurePane()).getByRole('article')).toBeInTheDocument();
+    expect(paneView()).toHaveClass('feature-pane-view-open');
   });
 });

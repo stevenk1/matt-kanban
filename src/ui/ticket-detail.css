@@ -16,6 +16,7 @@
   font: inherit;
   -webkit-user-select: none;
   user-select: none;
+  transition: background-color var(--motion-fast) var(--ease-out);
 }
 
 .detail-back:hover {
@@ -83,22 +84,6 @@
   margin: 14px 0;
 }
 
-.detail-button {
-  padding: 4px 11px;
-  border: none;
-  border-radius: 6px;
-  background: var(--card);
-  box-shadow: var(--shadow);
-  color: var(--text);
-  font: inherit;
-}
-
-.detail-button-primary {
-  background: var(--accent);
-  color: var(--on-accent);
-}
-
-.detail-button:focus-visible,
 .detail-back:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
@@ -111,4 +96,14 @@
   margin-bottom: 16px;
   padding-left: 12px;
   border-left: 3px solid var(--border);
+  animation: detail-spec-open var(--motion-view) var(--ease-out);
+}
+
+/* Show spec expands the panel open from nothing to its full height. */
+@keyframes detail-spec-open {
+  from {
+    max-height: 0;
+    margin-bottom: 0;
+    opacity: 0;
+  }
 }

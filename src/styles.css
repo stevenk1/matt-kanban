@@ -9,12 +9,19 @@
   --border: #d9d9de;
   --accent: #0a84ff;
   --accent-soft: #0a84ff1f;
+  /* A hovered row: half the selected row's tint. */
+  --hover: color-mix(in srgb, var(--accent-soft) 50%, transparent);
   /* Text on an --accent background, in both appearances. */
   --on-accent: #ffffff;
   --error: #d70015;
   /* Ticket cards */
   --card: #ffffff;
   --shadow: 0 1px 2px #0000001a, 0 0 0 0.5px #0000001a;
+  --shadow-hover: 0 2px 6px #00000024, 0 0 0 0.5px #00000024;
+  /* Motion: every transition and animation takes its duration and curve from these. */
+  --motion-fast: 120ms;
+  --motion-view: 180ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
   /* Ticket states */
   --blocked: #ff9f0a;
   --ready: #30b85a;
@@ -34,6 +41,15 @@
     --error: #ff6961;
     --card: #2c2c2f;
     --shadow: 0 1px 2px #00000066, 0 0 0 0.5px #ffffff14;
+    --shadow-hover: 0 2px 6px #00000080, 0 0 0 0.5px #ffffff24;
+  }
+}
+
+/* Reduced motion: no slide or fade plays; hover states still show, at once. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-view: 0ms;
   }
 }
 
@@ -53,6 +69,33 @@ body {
   color: var(--text);
   font: 13px/1.4 -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
   cursor: default;
+}
+
+/* What can be clicked shows the hand; a disabled button keeps the arrow. :where() adds no
+   specificity, so a component's own cursor (markdown text and its inert links) still wins. */
+:where(button:enabled, a[href], [role='button']:not([aria-disabled='true'])) {
+  cursor: pointer;
+}
+
+/* Enter animations, shared by every view and note that fades or slides in. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
 }
 
 .empty {

@@ -5,6 +5,7 @@ import type { Feature, Project, Ticket } from '../board/board';
 import { Markdown } from './Markdown';
 import type { Opener } from './opener';
 import { CriteriaProgress, OpenBlockers, STATE_LABELS, StatusMarker } from './TicketMeta';
+import './push-button.css';
 import './ticket-detail.css';
 
 type Props = {
@@ -40,11 +41,11 @@ export function TicketDetail({ project, feature, ticket, onBack, opener }: Props
       {ticket.blockerNote && <p className="detail-note">Also waits on: {ticket.blockerNote}</p>}
       {ticket.statusNote && <p className="detail-note">Status note: {ticket.statusNote}</p>}
       <div className="detail-actions">
-        <button type="button" className="detail-button detail-button-primary" onClick={() => opener.openUrl(ticketUrl(ticket))}>
+        <button type="button" className="push-button push-button-primary" onClick={() => opener.openUrl(ticketUrl(ticket))}>
           {ticket.location.kind === 'url' ? 'Open on GitHub' : 'Open in VS Code'}
         </button>
         {feature.spec !== null && (
-          <button type="button" className="detail-button" aria-expanded={showSpec} onClick={() => setShowSpec(!showSpec)}>
+          <button type="button" className="push-button" aria-expanded={showSpec} onClick={() => setShowSpec(!showSpec)}>
             {showSpec ? 'Hide spec' : 'Show spec'}
           </button>
         )}

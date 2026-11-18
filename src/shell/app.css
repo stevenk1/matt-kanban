@@ -21,4 +21,5 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  animation: fade-in var(--motion-view) var(--ease-out);
 }

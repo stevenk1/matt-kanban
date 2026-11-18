@@ -38,6 +38,11 @@
   color: inherit;
   font: inherit;
   text-align: left;
+  transition: background-color var(--motion-fast) var(--ease-out);
+}
+
+.side-item:hover {
+  background: var(--hover);
 }
 
 .side-row {
@@ -53,7 +58,8 @@
   overflow-wrap: anywhere;
 }
 
-.side-item.selected {
+.side-item.selected,
+.side-item:active {
   background: var(--accent-soft);
 }
 
@@ -118,8 +124,24 @@
 /* Selected Feature (right) */
 .feature-pane {
   overflow: auto;
+  /* A Ticket sliding in from the right would overflow it sideways and flash a scrollbar. */
+  overflow-x: clip;
   padding: 16px 20px;
   background: var(--win);
+}
+
+/* The pane's view enters by how it was reached (BoardView's Navigation): a Ticket slides in from
+   the right, Back slides its Feature in from the left, another Project or Feature fades in. */
+.feature-pane-view-open {
+  animation: slide-in-from-right var(--motion-view) var(--ease-out);
+}
+
+.feature-pane-view-back {
+  animation: slide-in-from-left var(--motion-view) var(--ease-out);
+}
+
+.feature-pane-view-switch {
+  animation: fade-in var(--motion-view) var(--ease-out);
 }
 
 /* No scan root yet: the window asks for one. */

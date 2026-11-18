@@ -24,4 +24,4 @@ Extend the one that fits, or move a private helper into a shared module when a s
 
 ## Styles stay with their component
 
-Each component's stylesheet prefixes its classes with the component's name (`mini-card`, `ticket-detail-body`). Only `src/styles.css` holds unprefixed rules: colour tokens and resets. Colours come from tokens, never raw values.
+Each component's stylesheet prefixes its classes with the component's name (`mini-card`, `ticket-detail-body`). Only `src/styles.css` holds unprefixed rules: colour and motion tokens, shared keyframes, and app-wide resets (such as the hand cursor on what can be clicked). A style that several components share gets its own stylesheet, prefixed with what it draws (`push-button.css`, `.push-button`). Colours come from tokens, never raw values; durations and curves come from the motion tokens.

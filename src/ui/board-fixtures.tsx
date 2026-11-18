@@ -129,3 +129,12 @@ export async function selectFeature(title: string) {
   const list = screen.getByRole('region', { name: 'Features' });
   await userEvent.setup().click(within(list).getByRole('button', { name: title }));
 }
+
+/** Clicks the card whose text starts with this Ticket number, showing the Ticket's detail. */
+export async function clickCard(num: string) {
+  const card = within(featurePane())
+    .getAllByRole('button')
+    .find((b) => b.textContent?.startsWith(num));
+  if (!card) throw new Error(`No card ${num}`);
+  await userEvent.setup().click(card);
+}

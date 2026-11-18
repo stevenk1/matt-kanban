@@ -2,16 +2,7 @@
 import { fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { boardOf, DAY, feature, featurePane, NOW, renderBoardView, selectFeature, ticket } from './board-fixtures';
-
-/** Clicks the card whose text starts with this Ticket number, showing the Ticket's detail. */
-async function clickCard(num: string) {
-  const card = within(featurePane())
-    .getAllByRole('button')
-    .find((b) => b.textContent?.startsWith(num));
-  if (!card) throw new Error(`No card ${num}`);
-  await userEvent.setup().click(card);
-}
+import { boardOf, clickCard, DAY, feature, featurePane, NOW, renderBoardView, selectFeature, ticket } from './board-fixtures';
 
 function detail() {
   return within(featurePane()).getByRole('article');

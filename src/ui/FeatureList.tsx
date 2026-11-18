@@ -15,12 +15,17 @@ type Props = {
   now: number;
   /** The selected Feature's key, or null. */
   selected: string | null;
+  /**
+   * Keys the rows for the Project-switch fade: a new value inserts them anew, so they fade in.
+   * BoardView passes the picked Project, so a new Board alone never plays it.
+   */
+  rowsKey: string | null;
   onSelect: (key: string) => void;
 };
 
 type Row = { project: Project; feature: Feature; counts: StateCounts };
 
-export function FeatureList({ projects, now, selected, onSelect }: Props) {
+export function FeatureList({ projects, now, selected, rowsKey, onSelect }: Props) {
   const [hideFinished, setHideFinished] = useState(true);
 
   const rows = projects
@@ -37,21 +42,19 @@ export function FeatureList({ projects, now, selected, onSelect }: Props) {
           Hide finished
         </label>
       </header>
-      {rows.length === 0 ? (
-        <p className="empty">No Features</p>
-      ) : (
-        <ul className="features">
-          {rows.map((row) => (
-            <FeatureRow
-              key={`${row.project.dir}/${row.feature.key}`}
-              row={row}
-              now={now}
-              selected={row.feature.key === selected}
-              onSelect={onSelect}
-            />
-          ))}
-        </ul>
-      )}
+      {rows.length === 0 && <p className="empty">No Features</p>}
+      {/* Kept while empty, so the first Features a new Board brings don't insert it and fade it in. */}
+      <ul key={rowsKey} className="features">
+        {rows.map((row) => (
+          <FeatureRow
+            key={`${row.project.dir}/${row.feature.key}`}
+            row={row}
+            now={now}
+            selected={row.feature.key === selected}
+            onSelect={onSelect}
+          />
+        ))}
+      </ul>
     </section>
   );
 }

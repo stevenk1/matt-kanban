@@ -16,6 +16,14 @@ import './board-view.css';
 /** A request to show one Ticket's detail; each new request object asks again, even for the same Ticket. */
 export type RevealRequest = { ticketId: string };
 
+/**
+ * How the Feature pane's view was last reached, which picks its enter animation: a Ticket opened
+ * slides in from the right, Back slides the Feature in from the left, another Project or Feature
+ * fades in. `count` keys the view, so each navigation inserts it anew and its animation plays,
+ * while a new Board alone keeps the same view and never replays it.
+ */
+type Navigation = { count: number; kind: 'open' | 'back' | 'switch' | null };
+
 export type BoardViewProps = {
   board: Board;
   /** How many days a Done Ticket stays on the mini-board before "Show all Done" is needed. */
@@ -40,10 +48,31 @@ export function BoardView({ board, doneWindowDays = 14, opener, reveal, onReveal
   const [selectedFeatureKey, setSelectedFeatureKey] = useState<string | null>(null);
   /** The id of the Ticket whose detail shows, or null while the Feature's mini-board shows. */
   const [detailTicketId, setDetailTicketId] = useState<string | null>(null);
+  const [navigation, setNavigation] = useState<Navigation>({ count: 0, kind: null });
   const [miniBoardToggles, setMiniBoardToggles] = useState<MiniBoardToggles>({
     showAllDone: false,
     showWontFix: false,
   });
+  // The routes through the Board: each changes the selection and picks the pane's enter animation
+  // together, so none can forget the one or the other.
+  const navigate = (kind: Navigation['kind']) => setNavigation((last) => ({ count: last.count + 1, kind }));
+  const openTicket = (ticketId: string) => {
+    setDetailTicketId(ticketId);
+    navigate('open');
+  };
+  const goBack = () => {
+    setDetailTicketId(null);
+    navigate('back');
+  };
+  const switchToProject = (dir: string | null) => {
+    setSelectedProject(dir);
+    navigate('switch');
+  };
+  const switchToFeature = (key: string) => {
+    setSelectedFeatureKey(key);
+    setDetailTicketId(null);
+    navigate('switch');
+  };
   // Applies each new request once. A new Board alone doesn't apply it again, so this runs only
   // when the request changes.
   useEffect(() => {
@@ -52,7 +81,7 @@ export function BoardView({ board, doneWindowDays = 14, opener, reveal, onReveal
     if (found) {
       setSelectedProject(found.project.dir);
       setSelectedFeatureKey(found.feature.key);
-      setDetailTicketId(reveal.ticketId);
+      openTicket(reveal.ticketId);
     }
     onRevealed?.();
   }, [reveal]);
@@ -66,43 +95,46 @@ export function BoardView({ board, doneWindowDays = 14, opener, reveal, onReveal
 
   return (
     <div className="board">
-      <Sidebar projects={board.projects} selectedProject={selectedProject} onSelectProject={setSelectedProject}>
+      <Sidebar projects={board.projects} selectedProject={selectedProject} onSelectProject={switchToProject}>
         {keepsStories(board) && <StoryList projects={shownProjects} />}
       </Sidebar>
       <FeatureList
         projects={shownProjects}
         now={board.readAt}
         selected={selection?.feature.key ?? null}
-        onSelect={(key) => {
-          setSelectedFeatureKey(key);
-          setDetailTicketId(null);
-        }}
+        rowsKey={selectedProject}
+        onSelect={switchToFeature}
       />
       <section className="feature-pane" aria-label="Feature">
-        {selection && detailTicket ? (
-          <TicketDetail
-            key={detailTicket.id}
-            project={selection.project}
-            feature={selection.feature}
-            ticket={detailTicket}
-            onBack={() => setDetailTicketId(null)}
-            opener={opener}
-          />
-        ) : selection && specOrIssue ? (
-          <FeatureDocument project={selection.project} feature={selection.feature} specOrIssue={specOrIssue} />
-        ) : selection ? (
-          <MiniBoard
-            project={selection.project}
-            feature={selection.feature}
-            now={board.readAt}
-            doneWindowDays={doneWindowDays}
-            toggles={miniBoardToggles}
-            onToggle={setMiniBoardToggles}
-            onOpen={(ticket) => setDetailTicketId(ticket.id)}
-          />
-        ) : (
-          <p className="empty">Select a Feature</p>
-        )}
+        <div
+          key={navigation.count}
+          className={`feature-pane-view${navigation.kind ? ` feature-pane-view-${navigation.kind}` : ''}`}
+        >
+          {selection && detailTicket ? (
+            <TicketDetail
+              key={detailTicket.id}
+              project={selection.project}
+              feature={selection.feature}
+              ticket={detailTicket}
+              onBack={goBack}
+              opener={opener}
+            />
+          ) : selection && specOrIssue ? (
+            <FeatureDocument project={selection.project} feature={selection.feature} specOrIssue={specOrIssue} />
+          ) : selection ? (
+            <MiniBoard
+              project={selection.project}
+              feature={selection.feature}
+              now={board.readAt}
+              doneWindowDays={doneWindowDays}
+              toggles={miniBoardToggles}
+              onToggle={setMiniBoardToggles}
+              onOpen={(ticket) => openTicket(ticket.id)}
+            />
+          ) : (
+            <p className="empty">Select a Feature</p>
+          )}
+        </div>
       </section>
     </div>
   );

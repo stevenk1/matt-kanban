@@ -104,6 +104,7 @@
 
 .settings-error {
   margin: 0;
+  animation: fade-in var(--motion-view) var(--ease-out);
   color: var(--error);
   font-size: 12px;
   overflow: hidden;

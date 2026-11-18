@@ -1,0 +1,38 @@
+/* A push button, as in the Ticket detail and Settings: a raised card that tints on hover and
+   presses in. :where() keeps the base free of specificity, so a component's own class
+   (.settings-remove) can still change its size. */
+:where(.push-button) {
+  padding: 4px 11px;
+  border: none;
+  border-radius: 6px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font: inherit;
+  transition:
+    background-color var(--motion-fast) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out);
+}
+
+.push-button:enabled:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--card));
+}
+
+.push-button:enabled:active {
+  transform: scale(0.97);
+}
+
+.push-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* The main action, drawn in the accent colour. */
+.push-button-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.push-button-primary:enabled:hover {
+  background: color-mix(in srgb, var(--accent) 85%, var(--text));
+}

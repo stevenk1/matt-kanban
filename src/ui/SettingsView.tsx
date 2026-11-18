@@ -12,6 +12,7 @@ import {
   type ProjectRef,
   type Settings,
 } from './settings';
+import './push-button.css';
 import './settings-view.css';
 
 type Props = {
@@ -61,7 +62,7 @@ export function SettingsView({ settings, projects, openAtLogin, onChange, onOpen
               </span>
               <button
                 type="button"
-                className="settings-remove"
+                className="push-button settings-remove"
                 aria-label={`Remove ${root}`}
                 title="Remove"
                 onClick={() => removeScanRoot(root)}
@@ -71,7 +72,7 @@ export function SettingsView({ settings, projects, openAtLogin, onChange, onOpen
             </li>
           ))}
         </ul>
-        <button type="button" onClick={() => void addScanRoot()}>
+        <button type="button" className="push-button" onClick={() => void addScanRoot()}>
           Add Folder…
         </button>
       </section>
