@@ -1,5 +1,27 @@
 #!/bin/sh
-# Runs the one check (typecheck, Vitest, the Rust unit tests) before each commit. Enabled by
-# `git config core.hooksPath .githooks`, which `npm install` runs (the prepare script).
+# Before each commit: refuses one that would publish a private word, then runs the one check
+# (typecheck, Vitest, the Rust unit tests). Enabled by `git config core.hooksPath .githooks`, which
+# `npm install` runs (the prepare script).
+#
+# Private words live in `.git/info/private-words`, one per line (`#` starts a comment): an email
+# domain, a client's or another project's name. The file is never committed, so the list stays
+# private; without it this step does nothing. A commit is refused when a line it adds, or its
+# author, contains one, ignoring case.
 set -e
+
+words="$(git rev-parse --git-path info/private-words)"
+if [ -s "$words" ]; then
+  patterns="$(grep -v -e '^[[:space:]]*#' -e '^[[:space:]]*$' "$words" || true)"
+  if [ -n "$patterns" ]; then
+    found="$(git diff --cached --no-color -U0 | grep '^+' | grep -v '^+++' | grep -i -F -o -e "$patterns" | sort -u || true)"
+    author="$(git var GIT_AUTHOR_IDENT | grep -i -F -o -e "$patterns" | sort -u || true)"
+    if [ -n "$found$author" ]; then
+      echo "pre-commit: private words from $words would be committed:" >&2
+      [ -n "$found" ] && echo "$found" | sed 's/^/  in the staged changes: /' >&2
+      [ -n "$author" ] && echo "$author" | sed 's/^/  in the author: /' >&2
+      exit 1
+    fi
+  fi
+fi
+
 npm run check
