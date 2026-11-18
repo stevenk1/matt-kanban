@@ -1,0 +1,16 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "settings",
+  "description": "The Settings window: it loads and saves the Settings (one fixed file in the app's config directory, written by the app's own command), picks a folder to add as a scan root (which grants reading and watching it, never writing; only picked folders can be saved as scan roots), turns Open at login on and off, hears the Board window's Projects and tells it when the Settings change. No fs, shell or opener access.",
+  "windows": ["settings"],
+  "permissions": [
+    "core:event:default",
+    "core:path:default",
+    "allow-load-settings",
+    "allow-save-settings",
+    "allow-pick-scan-root",
+    "autostart:allow-is-enabled",
+    "autostart:allow-enable",
+    "autostart:allow-disable"
+  ]
+}

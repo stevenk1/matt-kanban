@@ -1,0 +1,7 @@
+/* A status other than done, wontfix or ready-for-agent, or "unknown status". */
+.status-marker {
+  padding: 0 5px;
+  border: 0.5px solid var(--border);
+  border-radius: 4px;
+  font-size: 10px;
+}

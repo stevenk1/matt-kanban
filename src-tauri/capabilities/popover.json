@@ -1,0 +1,16 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "popover",
+  "description": "The menu-bar popover window: it hears the Board from the Board window, sends its clicks back, sizes itself to its content and hides, opens the Settings window, turns Open at login on and off, and quits. No file, shell or opener access.",
+  "windows": ["popover"],
+  "permissions": [
+    "core:event:default",
+    "core:window:allow-set-size",
+    "core:window:allow-hide",
+    "allow-quit-board",
+    "allow-open-settings",
+    "autostart:allow-is-enabled",
+    "autostart:allow-enable",
+    "autostart:allow-disable"
+  ]
+}

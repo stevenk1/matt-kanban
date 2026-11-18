@@ -1,0 +1,15 @@
+/* The "worktree" badge on a Feature row or Ticket card. */
+.worktree-badge {
+  display: inline-block;
+  max-width: 100%;
+  padding: 0 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 16px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}

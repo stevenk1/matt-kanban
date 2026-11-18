@@ -1,0 +1,104 @@
+/* The menu-bar popover, as prototyped: a rounded panel of Ready Tickets per Project. Its window
+   is transparent, so the panel's corners and edge are drawn here. */
+html:has(.popover),
+html:has(.popover) body {
+  background: transparent;
+}
+
+.popover {
+  width: 100%;
+  max-height: 100vh;
+  overflow: auto;
+  padding: 6px;
+  background: var(--win);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.pop-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pop-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ready);
+}
+
+.pop-project {
+  margin: 0;
+  padding: 6px 8px 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.pop-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pop-item {
+  display: block;
+  width: 100%;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pop-item:enabled:hover,
+.pop-item:focus-visible {
+  background: var(--accent);
+  color: var(--on-accent);
+  outline: none;
+}
+
+.pop-num {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.pop-item:enabled:hover .pop-num,
+.pop-item:focus-visible .pop-num {
+  color: inherit;
+}
+
+/* "Open at login": room on the left for a menu's checkmark, drawn when it is on. */
+.pop-check {
+  position: relative;
+  padding-left: 22px;
+}
+
+.pop-check[aria-pressed='true']::before {
+  content: '✓';
+  position: absolute;
+  left: 8px;
+}
+
+.pop-item:disabled {
+  color: var(--muted);
+}
+
+.pop-sep {
+  height: 0.5px;
+  margin: 6px 4px;
+  border: 0;
+  background: var(--border);
+}

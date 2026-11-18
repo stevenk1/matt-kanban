@@ -1,0 +1,114 @@
+/* One Ticket's detail (right pane, in place of its Feature's mini-board). */
+.detail {
+  max-width: 760px;
+  /* Ticket text is for reading and copying. */
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.detail-back {
+  margin: 0 0 8px -6px;
+  padding: 2px 6px;
+  border: none;
+  border-radius: 5px;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.detail-back:hover {
+  background: var(--accent-soft);
+}
+
+.detail-crumb {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.detail-title {
+  margin: 4px 0 8px;
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+
+.detail-num {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.detail-badge {
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--win);
+}
+
+.detail-badge-blocked {
+  background: var(--blocked);
+}
+
+.detail-badge-ready {
+  background: var(--ready);
+}
+
+.detail-badge-done,
+.detail-badge-wontfix {
+  background: var(--done);
+}
+
+.detail-note {
+  margin: 10px 0 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--blocked) 12%, transparent);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.detail-button {
+  padding: 4px 11px;
+  border: none;
+  border-radius: 6px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font: inherit;
+}
+
+.detail-button-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.detail-button:focus-visible,
+.detail-back:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* The Feature's spec, shown above the Ticket body by "Show spec". */
+.detail-spec {
+  max-height: 40vh;
+  overflow: auto;
+  margin-bottom: 16px;
+  padding-left: 12px;
+  border-left: 3px solid var(--border);
+}

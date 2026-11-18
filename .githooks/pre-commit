@@ -1,0 +1,5 @@
+#!/bin/sh
+# Runs the one check (typecheck, Vitest, the Rust unit tests) before each commit. Enabled by
+# `git config core.hooksPath .githooks`, which `npm install` runs (the prepare script).
+set -e
+npm run check

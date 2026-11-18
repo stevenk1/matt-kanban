@@ -1,0 +1,9 @@
+/* The sidebar's Project list: the Ready count at the end of each row. */
+.side-count {
+  margin-left: auto;
+  min-width: 1ch;
+  text-align: right;
+  color: var(--muted);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}

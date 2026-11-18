@@ -1,0 +1,24 @@
+/* A failed read, paused live updates or a folder that couldn't be added: small notes over the
+   Board's bottom-right corner, leaving the Board usable. */
+.app-notes {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.app-note {
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  color: var(--error);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

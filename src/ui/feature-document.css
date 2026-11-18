@@ -1,0 +1,21 @@
+/* A Feature with no Tickets (right pane, in place of its mini-board): its spec or issue. */
+.feature-document {
+  max-width: 760px;
+  /* The spec is for reading and copying. */
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.feature-document-title {
+  margin: 0;
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+
+.feature-document-project {
+  color: var(--muted);
+}
+
+.feature-document-body {
+  margin-top: 16px;
+}

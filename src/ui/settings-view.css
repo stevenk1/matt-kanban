@@ -1,0 +1,117 @@
+/* The Settings window: stacked sections in the macOS Settings style, a bordered list per
+   setting with the controls beneath it. */
+.settings {
+  height: 100%;
+  overflow: auto;
+  padding: 16px 20px 20px;
+  background: var(--panel);
+}
+
+.settings-section {
+  margin: 0 0 18px;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.settings-section h2 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.settings-section legend {
+  padding: 0;
+}
+
+.settings-help {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.settings-box {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 2px 0;
+  background: var(--win);
+  border: 0.5px solid var(--border);
+  border-radius: 6px;
+}
+
+.settings-box li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 26px;
+  padding: 0 8px;
+}
+
+.settings-box li + li {
+  border-top: 0.5px solid var(--border);
+}
+
+.settings-path {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-remove {
+  width: 22px;
+  padding: 0;
+}
+
+.settings-projects {
+  max-height: 180px;
+  overflow: auto;
+}
+
+.settings-projects label,
+.settings-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+}
+
+.settings-row input {
+  width: 56px;
+}
+
+.settings-row .settings-help {
+  margin: 0;
+}
+
+/* Saving or adding a folder failed: notes along the window's bottom edge. */
+.settings-errors {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 6px 20px;
+  background: var(--win);
+  border-top: 0.5px solid var(--border);
+}
+
+.settings-error {
+  margin: 0;
+  color: var(--error);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings button,
+.settings input[type='number'] {
+  font: inherit;
+}

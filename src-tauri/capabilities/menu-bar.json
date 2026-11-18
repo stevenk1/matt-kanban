@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "menu-bar",
+  "description": "The Board window's part in the menu-bar extra: it sets the tray icon's title and talks to the popover (both allowed by core:default in default.json), and brings itself forward when a Ticket or Open Board… is clicked in the popover.",
+  "windows": ["main"],
+  "permissions": ["core:window:allow-show", "core:window:allow-unminimize", "core:window:allow-set-focus"]
+}

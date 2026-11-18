@@ -1,0 +1,46 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The Board window: no folder access of its own (each scan root the user picks, here or in Settings, is granted at runtime by src-tauri/src/settings.rs, for reading and watching only), watching its Projects' .scratch/ folders for changes, loading the Settings, picking and saving a scan root for the empty state's Add Folder (only a folder picked in the dialog is granted or saved), the two read-only gh commands the GitHub port runs (Homebrew's gh, or /usr/local/bin/gh as a fallback), and opening a Ticket through a vscode://file/ URL or its GitHub issue URL. Nothing here allows writing: no fs write permission is granted anywhere, as the runtime-granted scan roots apply to every fs command.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "allow-load-settings",
+    "allow-save-settings",
+    "allow-pick-scan-root",
+    "fs:allow-read-dir",
+    "fs:allow-read-text-file",
+    "fs:allow-stat",
+    "fs:allow-exists",
+    "fs:allow-watch",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [{ "url": "vscode://file/*" }, { "url": "https://github.com/*" }]
+    },
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "gh-issue-list-homebrew",
+          "cmd": "/opt/homebrew/bin/gh",
+          "args": ["issue", "list", "--state", "all", "--limit", "1000", "--json", "number,title,state,labels,body,updatedAt,closedAt,url"]
+        },
+        {
+          "name": "gh-sub-issues-homebrew",
+          "cmd": "/opt/homebrew/bin/gh",
+          "args": ["api", { "validator": "^repos/\\{owner\\}/\\{repo\\}/issues/\\d+/sub_issues\\?per_page=100$" }]
+        },
+        {
+          "name": "gh-issue-list-usr-local",
+          "cmd": "/usr/local/bin/gh",
+          "args": ["issue", "list", "--state", "all", "--limit", "1000", "--json", "number,title,state,labels,body,updatedAt,closedAt,url"]
+        },
+        {
+          "name": "gh-sub-issues-usr-local",
+          "cmd": "/usr/local/bin/gh",
+          "args": ["api", { "validator": "^repos/\\{owner\\}/\\{repo\\}/issues/\\d+/sub_issues\\?per_page=100$" }]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+/* The selected Feature's mini-board (right pane): Blocked | Ready | Done columns of cards. */
+.mini-board-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.mini-board-title {
+  margin: 0;
+  font-size: 20px;
+}
+
+.mini-board-project {
+  color: var(--muted);
+}
+
+.mini-board-toggles {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.mini-board-toggles label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mini-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.mini-column-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: inherit;
+  font-weight: 600;
+}
+
+.mini-column-count {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.mini-column-empty,
+.mini-column-footer {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.mini-column-footer {
+  margin-top: 4px;
+}
+
+.mini-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mini-dot-blocked {
+  background: var(--blocked);
+}
+
+.mini-dot-ready {
+  background: var(--ready);
+}
+
+.mini-dot-done {
+  background: var(--done);
+}
+
+.mini-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* A Ticket card */
+.mini-card {
+  display: block;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.mini-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* A Won't fix card, shown only when "Show Won't fix" is on. */
+.mini-card.mini-card-wontfix {
+  opacity: 0.55;
+}
+
+.mini-card-wontfix-label {
+  font-weight: 600;
+}
+
+.mini-card-title {
+  margin-bottom: 3px;
+  overflow-wrap: anywhere;
+}
+
+.mini-card-num {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.mini-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.mini-card-meta:empty {
+  display: none;
+}
