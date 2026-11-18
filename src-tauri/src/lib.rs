@@ -5,7 +5,9 @@
 // It also owns the menu-bar extra's tray icon and popover window (menu_bar.rs), and the
 // Settings window, the Settings file and the scan roots added in Settings (settings.rs,
 // scan_roots.rs), with "Settings…" in the app menu, and checks for and installs updates
-// (updater.rs).
+// (updater.rs). A debug build titles its Board window by its dev-server port and, for a
+// README screenshot shoot (BOARD_DEV_SHOOT), sets the app's appearance and reads only the dev
+// scan root; a release build reads neither variable.
 mod menu_bar;
 mod scan_roots;
 mod settings;
@@ -35,9 +37,10 @@ pub fn run() {
         // Checked, downloaded and installed from Rust only (updater.rs): no capability grants it.
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
+            let shoot = shoot_theme_from_env();
             #[cfg(debug_assertions)]
-            name_dev_window(app);
-            settings::setup(app)?;
+            dress_dev_windows(app, shoot);
+            settings::setup(app, shoot.is_some())?;
             updater::setup(app);
             Ok(menu_bar::setup(app)?)
         })
@@ -60,17 +63,51 @@ pub fn run() {
 
 /// Debug builds title the Board window with their dev-server port ("Board (dev :1432)"), so an
 /// agent's dev app is told apart from the developer's own Board, and its window found by title.
+/// For a screenshot shoot (`shoot`, from BOARD_DEV_SHOOT=light|dark), the window is titled plain
+/// "Board" and every window of the app takes the shoot's appearance, whatever macOS's own is.
 #[cfg(debug_assertions)]
-fn name_dev_window(app: &tauri::App) {
+fn dress_dev_windows(app: &tauri::App, shoot: Option<tauri::Theme>) {
     use tauri::Manager;
+    if shoot.is_some() {
+        app.set_theme(shoot);
+    }
     let (Some(url), Some(window)) = (&app.config().build.dev_url, app.get_webview_window("main")) else {
         return;
     };
-    let _ = window.set_title(&dev_window_title(url));
+    let _ = window.set_title(&dev_window_title(url, shoot.is_some()));
+}
+
+/// BOARD_DEV_SHOOT's appearance, when it is `light` or `dark`; read in a debug build only.
+#[cfg(debug_assertions)]
+fn shoot_theme_from_env() -> Option<tauri::Theme> {
+    let value = std::env::var("BOARD_DEV_SHOOT").ok()?;
+    let theme = shoot_theme(&value);
+    if theme.is_none() {
+        eprintln!("Ignoring BOARD_DEV_SHOOT={value}: not light or dark");
+    }
+    theme
+}
+
+#[cfg(not(debug_assertions))]
+fn shoot_theme_from_env() -> Option<tauri::Theme> {
+    None
 }
 
 #[cfg(debug_assertions)]
-fn dev_window_title(dev_url: &tauri::Url) -> String {
+fn shoot_theme(value: &str) -> Option<tauri::Theme> {
+    match value {
+        "light" => Some(tauri::Theme::Light),
+        "dark" => Some(tauri::Theme::Dark),
+        _ => None,
+    }
+}
+
+/// The Board window's title in a debug build: by its dev-server port, or plain "Board" for a shoot.
+#[cfg(debug_assertions)]
+fn dev_window_title(dev_url: &tauri::Url, shooting: bool) -> String {
+    if shooting {
+        return "Board".to_string();
+    }
     match dev_url.port_or_known_default() {
         Some(port) => format!("Board (dev :{port})"),
         None => "Board (dev)".to_string(),
@@ -79,11 +116,27 @@ fn dev_window_title(dev_url: &tauri::Url) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::dev_window_title;
+    use super::{dev_window_title, shoot_theme};
+    use tauri::Theme;
 
     #[test]
     fn names_the_dev_window_by_its_port() {
         let url = tauri::Url::parse("http://localhost:1432").unwrap();
-        assert_eq!(dev_window_title(&url), "Board (dev :1432)");
+        assert_eq!(dev_window_title(&url, false), "Board (dev :1432)");
+    }
+
+    #[test]
+    fn reads_light_or_dark_as_the_shoot_theme_and_nothing_else() {
+        assert_eq!(shoot_theme("light"), Some(Theme::Light));
+        assert_eq!(shoot_theme("dark"), Some(Theme::Dark));
+        for value in ["", "Dark", "auto", " light"] {
+            assert_eq!(shoot_theme(value), None, "accepted {value:?}");
+        }
+    }
+
+    #[test]
+    fn titles_the_dev_window_plain_board_for_a_shoot() {
+        let url = tauri::Url::parse("http://localhost:1432").unwrap();
+        assert_eq!(dev_window_title(&url, true), "Board");
     }
 }

@@ -11,7 +11,9 @@
 //
 // In a debug build only, BOARD_DEV_SCAN_ROOT names a dev scan root, so a hand check can point the
 // Board at a throwaway folder: it is granted like a picked folder, loaded as the first scan root
-// and never saved. A release build doesn't read the variable.
+// and never saved. During a README screenshot shoot (BOARD_DEV_SHOOT, read in lib.rs) only the dev
+// scan root is read, not the saved ones, and the Settings file is never written. A release build
+// reads neither variable.
 // Checked by hand (spec, "Thin Tauri shell"), apart from scan_roots.rs's unit tests.
 use crate::scan_roots::{scan_root, scan_roots_in, ScanRoots};
 use std::path::{Path, PathBuf};
@@ -29,11 +31,15 @@ const SETTINGS_MENU_ITEM: &str = "settings";
 /// The scan roots that may be granted and saved.
 struct AllowedScanRoots(Mutex<ScanRoots>);
 
-/// Allows (in a debug build) the dev scan root, and puts "Settings…" in the app menu.
-pub fn setup(app: &mut App) -> tauri::Result<()> {
+/// Allows (in a debug build) the dev scan root, and puts "Settings…" in the app menu. During a
+/// screenshot `shoot`, only the dev scan root is read and nothing is saved.
+pub fn setup(app: &mut App, shoot: bool) -> tauri::Result<()> {
     let mut roots = ScanRoots::default();
     if let Some(dev) = dev_root_from_env() {
         roots = roots.with_dev_root(dev);
+    }
+    if shoot {
+        roots = roots.for_a_shoot();
     }
     if let Some(dev) = roots.dev_root() {
         allow_scan_root(app.handle(), dev);
@@ -87,10 +93,13 @@ pub fn load_settings<R: Runtime>(app: AppHandle<R>) -> Result<Option<String>, St
 /// scan root; the dev scan root isn't saved.
 #[tauri::command]
 pub fn save_settings<R: Runtime>(app: AppHandle<R>, settings: serde_json::Value) -> Result<(), String> {
-    let settings = {
+    let to_save = {
         let mut allowed = allowed_scan_roots(&app);
         allowed.accept_saved(&settings)?;
         allowed.to_save(settings)
+    };
+    let Some(settings) = to_save else {
+        return Ok(());
     };
     let path = settings_file(&app)?;
     let text = serde_json::to_string_pretty(&settings).map_err(|error| error.to_string())?;

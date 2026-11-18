@@ -4,6 +4,8 @@
 // record across launches: only the app writes it, and only after `accept_saved` has checked its
 // scan roots, so the roots in it were all picked. There is no default scan root. The dev scan root
 // isn't written to it (it comes from the environment on each launch) unless it was also picked.
+// During a README screenshot shoot (debug only), the saved scan roots aren't read and nothing is
+// written, so the developer's own Projects stay out of the shots.
 // Kept apart from the Tauri commands in settings.rs so it can be unit-tested.
 use serde_json::{json, Value};
 use std::collections::BTreeSet;
@@ -13,6 +15,8 @@ use std::path::{Path, PathBuf};
 pub struct ScanRoots {
     dev: Option<PathBuf>,
     picked: BTreeSet<PathBuf>,
+    /// A screenshot shoot (BOARD_DEV_SHOOT, lib.rs): only the dev scan root is read.
+    shoot: bool,
 }
 
 impl ScanRoots {
@@ -20,6 +24,13 @@ impl ScanRoots {
     /// saving leaves out, unless it was also picked.
     pub fn with_dev_root(mut self, dev: PathBuf) -> Self {
         self.dev = Some(dev);
+        self
+    }
+
+    /// For a screenshot shoot: loading leaves out the saved scan roots, so only the dev scan root
+    /// (if any) is read and none of the developer's own Projects shows.
+    pub fn for_a_shoot(mut self) -> Self {
+        self.shoot = true;
         self
     }
 
@@ -60,34 +71,41 @@ impl ScanRoots {
     }
 
     /// The Settings file's text (None when there is none) as the Board should load it: with the
-    /// dev scan root first among the scan roots, followed by the saved ones. Unchanged without a
-    /// dev scan root.
+    /// dev scan root first among the scan roots, followed by the saved ones, which a shoot leaves
+    /// out. Unchanged without a dev scan root or a shoot.
     pub fn loaded(&self, text: Option<String>) -> Option<String> {
-        let Some(dev) = &self.dev else {
+        if self.dev.is_none() && !self.shoot {
             return text;
-        };
+        }
         let mut settings = text
             .as_deref()
             .and_then(|text| serde_json::from_str::<Value>(text).ok())
             .filter(Value::is_object)
             .unwrap_or_else(|| json!({}));
-        let saved = text.as_deref().map(scan_roots_in).unwrap_or_default();
+        let saved = match (&text, self.shoot) {
+            (Some(text), false) => scan_roots_in(text),
+            _ => vec![],
+        };
         let roots: Vec<PathBuf> =
-            std::iter::once(dev.clone()).chain(saved.into_iter().filter(|root| root != dev)).collect();
+            self.dev.iter().cloned().chain(saved.into_iter().filter(|root| !self.is_dev(root))).collect();
         settings["scanRoots"] = json!(roots);
         Some(settings.to_string())
     }
 
     /// `settings`, once accepted, as they should be written to the Settings file: without the dev
-    /// scan root, unless it was also picked (or saved before).
-    pub fn to_save(&self, mut settings: Value) -> Value {
+    /// scan root, unless it was also picked (or saved before). None during a shoot, which leaves
+    /// the Settings file as it was.
+    pub fn to_save(&self, mut settings: Value) -> Option<Value> {
+        if self.shoot {
+            return None;
+        }
         let Some(dev) = self.dev.as_ref().filter(|dev| !self.picked.contains(*dev)) else {
-            return settings;
+            return Some(settings);
         };
         if let Some(entries) = settings.get_mut("scanRoots").and_then(Value::as_array_mut) {
             entries.retain(|entry| scan_root(entry).as_ref() != Some(dev));
         }
-        settings
+        Some(settings)
     }
 }
 
@@ -235,7 +253,7 @@ mod tests {
         let settings = saved(&["/Users/dev/repo/.retro-dev-root", "/Users/dev/repo"]);
 
         assert!(roots.accept_saved(&settings).is_ok());
-        assert_eq!(roots.to_save(settings), saved(&["/Users/dev/repo"]));
+        assert_eq!(roots.to_save(settings), Some(saved(&["/Users/dev/repo"])));
         assert!(roots.accept_saved(&saved(&["/Users/dev/repo/.retro-dev-root"])).is_ok());
     }
 
@@ -248,8 +266,35 @@ mod tests {
 
         roots.accept_saved(&settings).unwrap();
 
-        assert_eq!(roots.to_save(settings.clone()), settings);
-        assert_eq!(roots.to_save(settings.clone()), settings, "still picked after a save");
+        assert_eq!(roots.to_save(settings.clone()), Some(settings.clone()));
+        assert_eq!(roots.to_save(settings.clone()), Some(settings), "still picked after a save");
+    }
+
+    #[test]
+    fn a_shoot_loads_only_the_dev_root_keeping_the_other_settings() {
+        let text = saved(&["/Users/dev/work", "/Users/dev/repo"]).to_string();
+
+        let loaded: Value = serde_json::from_str(&with_dev().for_a_shoot().loaded(Some(text)).unwrap()).unwrap();
+
+        assert_eq!(loaded, saved(&["/Users/dev/repo/.retro-dev-root"]));
+    }
+
+    #[test]
+    fn a_shoot_without_a_dev_root_loads_no_scan_roots() {
+        let text = saved(&["/Users/dev/work"]).to_string();
+
+        let loaded: Value = serde_json::from_str(&roots().for_a_shoot().loaded(Some(text)).unwrap()).unwrap();
+
+        assert_eq!(loaded, saved(&[]));
+    }
+
+    #[test]
+    fn a_shoot_saves_nothing() {
+        let mut roots = with_dev().for_a_shoot();
+        let settings = saved(&["/Users/dev/repo/.retro-dev-root"]);
+        roots.accept_saved(&settings).unwrap();
+
+        assert_eq!(roots.to_save(settings), None);
     }
 
     #[test]
