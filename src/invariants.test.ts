@@ -1,9 +1,9 @@
 // Invariants of the whole repo, checked by reading its files: the Board is read-only (no
 // capability in src-tauri/capabilities/ grants an fs write, a shell command beyond the read-only
-// `gh` ones, or an opener URL beyond VS Code and GitHub), and the Board reader and the views stay
-// behind their seam (nothing under src/board/ or src/ui/ imports Tauri; src/shell/ holds the
-// Tauri adapters), and no tracked file ties the repo to one machine (a real home folder, or a
-// hard-coded folder layout under it).
+// `gh` ones, an opener URL beyond VS Code and GitHub, or any updater permission), and the Board
+// reader and the views stay behind their seam (nothing under src/board/ or src/ui/ imports Tauri;
+// src/shell/ holds the Tauri adapters), and no tracked file ties the repo to one machine (a real
+// home folder, or a hard-coded folder layout under it).
 import { execFileSync } from 'node:child_process';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -59,6 +59,8 @@ function writeAccess(file: string, permission: Permission): string[] {
       return [];
     });
   }
+  // Updates are checked, downloaded and installed by the Rust shell alone (src-tauri/src/updater.rs).
+  if (plugin === 'updater') return [problem('lets a window drive the updater')];
   if (plugin === 'opener') {
     if (name !== 'allow-open-url') return [problem('is not the scoped opener:allow-open-url')];
     return scope.flatMap((entry) => {
@@ -93,7 +95,7 @@ function tauriImporters(dir: string): string[] {
 }
 
 describe('the capabilities', () => {
-  it('grant no fs write, no shell command but the read-only gh ones, and no opener URL but VS Code and GitHub', () => {
+  it('grant no fs write, no shell command but the read-only gh ones, no opener URL but VS Code and GitHub, and no updater permission', () => {
     const files = capabilityFiles();
 
     expect(files.length).toBeGreaterThan(0);
@@ -121,6 +123,8 @@ describe('the capabilities', () => {
       'opener:default',
       'opener:allow-open-path',
       { identifier: 'opener:allow-open-url', allow: [{ url: 'https://*' }] },
+      'updater:default',
+      'updater:allow-download-and-install',
     ];
 
     for (const permission of extras) expect(capabilityProblems([bad(permission)]), JSON.stringify(permission)).toHaveLength(1);

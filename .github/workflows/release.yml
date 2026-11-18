@@ -1,0 +1,44 @@
+# Pushing a v* tag publishes a GitHub Release (ADR 0002): an Apple Silicon .dmg, ad-hoc signed
+# and not notarized, plus what the in-app updater reads (the .app.tar.gz, its .sig and
+# latest.json). Each step stops the run when it fails, so a tag that isn't v + package.json's
+# version, or a red check, publishes nothing.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: macos-15
+    permissions:
+      contents: write # gh release create
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Check the tag is v + package.json's version
+        run: node scripts/release.ts check-tag "$GITHUB_REF_NAME"
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: src-tauri
+      - run: npm ci
+      - run: npm run check
+      - name: Build, ad-hoc signed, with signed updater artifacts
+        run: npx tauri build --target aarch64-apple-darwin
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+      - name: Publish the Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The asset paths, one per line (none has a space), and latest.json written beside them.
+          assets=$(node scripts/release.ts manifest src-tauri/target/aarch64-apple-darwin/release/bundle latest.json)
+          # shellcheck disable=SC2086 # one word per asset path
+          gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes $assets

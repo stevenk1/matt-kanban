@@ -13,24 +13,37 @@ A read-only macOS app that shows the tickets made by [Matt Pocock's skills](http
 
 The Board never writes to your projects. Its capabilities grant read access only to the folders you pick, and a test checks that they stay read-only.
 
-## Requirements
+## Install
+
+1. Download the `.dmg` from the latest [Release](https://github.com/stevenk1/matt-kanban/releases/latest) (Apple Silicon) and drag Board to Applications.
+2. Open it once. The app is ad-hoc signed but not notarized, so macOS refuses the first time: go to System Settings › Privacy & Security, click Open Anyway next to the message about Board, and confirm.
+
+After that, updates arrive by themselves: the Board checks the Releases at launch and once a day, and asks before it installs a new version and restarts.
+
+## Build from source
+
+### Requirements
 
 - macOS
 - A current Node.js LTS and a Rust toolchain ([Tauri's prerequisites](https://tauri.app/start/prerequisites/))
 - [`gh`](https://cli.github.com/), logged in, installed at `/opt/homebrew/bin/gh` or `/usr/local/bin/gh`. Only needed for Projects that track their work in GitHub Issues.
 
-## Build and run
+### Build and run
 
 ```sh
 npm install
 npm run app          # development build with hot reload
-npx tauri build      # a release .app under src-tauri/target/release/bundle/macos/
+npx tauri build      # a release .app and .dmg under src-tauri/target/release/bundle/
 npm run check        # typecheck, Vitest and the Rust unit tests
 ```
 
+A local `npx tauri build` also makes the updater's signed bundle, so it needs the updater's private key in `TAURI_SIGNING_PRIVATE_KEY` (and its password in `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`). Without the key, add `--config '{"bundle":{"createUpdaterArtifacts":false}}'`.
+
 On first launch the Board asks for the folder that holds your projects. You can add more folders, hide Projects, set how long Done Tickets stay visible, and turn on Open at login, all from Settings (Cmd+,).
 
-The release build isn't signed, so macOS will ask you to confirm the first time you open it.
+### Releasing
+
+Bump `version` in `package.json` (the app takes its version from there), commit, and push a tag `v<version>`. The Release workflow checks the tag against the version, runs `npm run check`, builds and publishes the Release.
 
 ## Story files
 

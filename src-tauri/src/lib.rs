@@ -4,10 +4,12 @@
 // opens a Ticket in VS Code or on GitHub through the opener plugin (see capabilities/).
 // It also owns the menu-bar extra's tray icon and popover window (menu_bar.rs), and the
 // Settings window, the Settings file and the scan roots added in Settings (settings.rs,
-// scan_roots.rs), with "Settings…" in the app menu.
+// scan_roots.rs), with "Settings…" in the app menu, and checks for and installs updates
+// (updater.rs).
 mod menu_bar;
 mod scan_roots;
 mod settings;
+mod updater;
 
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_window_state::StateFlags;
@@ -30,10 +32,13 @@ pub fn run() {
                 .with_denylist(&[menu_bar::POPOVER_WINDOW, settings::SETTINGS_WINDOW])
                 .build(),
         )
+        // Checked, downloaded and installed from Rust only (updater.rs): no capability grants it.
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
             #[cfg(debug_assertions)]
             name_dev_window(app);
             settings::setup(app)?;
+            updater::setup(app);
             Ok(menu_bar::setup(app)?)
         })
         .on_window_event(menu_bar::on_window_event)
