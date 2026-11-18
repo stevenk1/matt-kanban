@@ -69,10 +69,10 @@ pub fn run() {
     });
 }
 
-/// Debug builds title the Board window with their dev-server port ("Board (dev :1432)"), so an
+/// Debug builds title the Board window with their dev-server port ("MattBoard (dev :1432)"), so an
 /// agent's dev app is told apart from the developer's own Board, and its window found by title.
 /// For a screenshot shoot (`shoot`, from BOARD_DEV_SHOOT=light|dark), the window is titled plain
-/// "Board" and every window of the app takes the shoot's appearance, whatever macOS's own is.
+/// "MattBoard" and every window of the app takes the shoot's appearance, whatever macOS's own is.
 #[cfg(debug_assertions)]
 fn dress_dev_windows(app: &tauri::App, shoot: Option<tauri::Theme>) {
     use tauri::Manager;
@@ -110,15 +110,15 @@ fn shoot_theme(value: &str) -> Option<tauri::Theme> {
     }
 }
 
-/// The Board window's title in a debug build: by its dev-server port, or plain "Board" for a shoot.
+/// The Board window's title in a debug build: by its dev-server port, or plain "MattBoard" for a shoot.
 #[cfg(debug_assertions)]
 fn dev_window_title(dev_url: &tauri::Url, shooting: bool) -> String {
     if shooting {
-        return "Board".to_string();
+        return "MattBoard".to_string();
     }
     match dev_url.port_or_known_default() {
-        Some(port) => format!("Board (dev :{port})"),
-        None => "Board (dev)".to_string(),
+        Some(port) => format!("MattBoard (dev :{port})"),
+        None => "MattBoard (dev)".to_string(),
     }
 }
 
@@ -130,7 +130,7 @@ mod tests {
     #[test]
     fn names_the_dev_window_by_its_port() {
         let url = tauri::Url::parse("http://localhost:1432").unwrap();
-        assert_eq!(dev_window_title(&url, false), "Board (dev :1432)");
+        assert_eq!(dev_window_title(&url, false), "MattBoard (dev :1432)");
     }
 
     #[test]
@@ -145,6 +145,6 @@ mod tests {
     #[test]
     fn titles_the_dev_window_plain_board_for_a_shoot() {
         let url = tauri::Url::parse("http://localhost:1432").unwrap();
-        assert_eq!(dev_window_title(&url, true), "Board");
+        assert_eq!(dev_window_title(&url, true), "MattBoard");
     }
 }

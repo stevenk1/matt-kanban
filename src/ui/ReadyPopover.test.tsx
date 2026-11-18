@@ -99,17 +99,17 @@ describe('ReadyPopover', () => {
     expect(onReveal).not.toHaveBeenCalled();
   });
 
-  it('ends with "Open Board…", "Settings…", "Open at login" and "Quit Board", in that order', () => {
+  it('ends with "Open Board…", "Settings…", "Open at login" and "Quit MattBoard", in that order', () => {
     renderPopover(board);
 
     const buttons = screen.getAllByRole('button').map((button) => button.textContent);
-    expect(buttons.slice(-4)).toEqual(['Open Board…', 'Settings…', 'Open at login', 'Quit Board']);
+    expect(buttons.slice(-4)).toEqual(['Open Board…', 'Settings…', 'Open at login', 'Quit MattBoard']);
   });
 
-  it('quits from "Quit Board"', async () => {
+  it('quits from "Quit MattBoard"', async () => {
     const { onReveal, onOpenBoard, onQuit } = renderPopover(board);
 
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Quit Board' }));
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Quit MattBoard' }));
 
     expect(onQuit).toHaveBeenCalledOnce();
     expect(onOpenBoard).not.toHaveBeenCalled();

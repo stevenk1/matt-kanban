@@ -18,9 +18,9 @@ describe('the release tag check', () => {
 describe('the release assets', () => {
   it('are the .dmg, the updater bundle and its signature that tauri build leaves in the bundle folder', () => {
     expect(releaseAssets('target/bundle', '0.2.0')).toEqual({
-      dmg: 'target/bundle/dmg/Board_0.2.0_aarch64.dmg',
-      updaterBundle: 'target/bundle/macos/Board.app.tar.gz',
-      signature: 'target/bundle/macos/Board.app.tar.gz.sig',
+      dmg: 'target/bundle/dmg/MattBoard_0.2.0_aarch64.dmg',
+      updaterBundle: 'target/bundle/macos/MattBoard.app.tar.gz',
+      signature: 'target/bundle/macos/MattBoard.app.tar.gz.sig',
     });
   });
 });
@@ -41,7 +41,7 @@ describe('the updater manifest', () => {
       platforms: {
         'darwin-aarch64': {
           signature: 'dW50cnVzdGVk',
-          url: 'https://github.com/someone/board/releases/download/v0.2.0/Board.app.tar.gz',
+          url: 'https://github.com/someone/board/releases/download/v0.2.0/MattBoard.app.tar.gz',
         },
       },
     });

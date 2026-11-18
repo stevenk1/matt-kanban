@@ -11,8 +11,8 @@ A read-only macOS app that shows the tickets made by [Matt Pocock's skills](http
 
 ## Install
 
-1. Download `Board_<version>_aarch64.dmg` from the latest [Release](https://github.com/stevenk1/matt-kanban/releases/latest), open it and drag Board to Applications. It runs on Apple Silicon Macs only. The Release's other files (`Board.app.tar.gz`, its `.sig` and `latest.json`) are what the Board's updater downloads; you don't need them.
-2. Open Board once. It is ad-hoc signed but not notarized, so macOS refuses it the first time: go to System Settings › Privacy & Security, click Open Anyway next to the message about Board, and confirm. That is needed only once.
+1. Download `MattBoard_<version>_aarch64.dmg` from the latest [Release](https://github.com/stevenk1/matt-kanban/releases/latest), open it and drag MattBoard to Applications. It runs on Apple Silicon Macs only. The Release's other files (`MattBoard.app.tar.gz`, its `.sig` and `latest.json`) are what its updater downloads; you don't need them.
+2. Open MattBoard once. It is ad-hoc signed but not notarized, so macOS refuses it the first time: go to System Settings › Privacy & Security, click Open Anyway next to the message about MattBoard, and confirm. That is needed only once.
 
 ## First launch
 
@@ -33,7 +33,7 @@ Open Settings with Cmd+, (or Settings… in the popover) to add more folders, hi
 
 ## Updates
 
-The Board checks the Releases at launch and once a day. When there is a new version, it asks whether to install it and restart; Later asks again at the next check. An update needs no second Open Anyway, though macOS may ask again for access to a folder it guards, such as Documents or Desktop.
+MattBoard checks the Releases at launch and once a day. When there is a new version, it asks whether to install it and restart; Later asks again at the next check. An update needs no second Open Anyway, though macOS may ask again for access to a folder it guards, such as Documents or Desktop.
 
 ## What it shows
 
@@ -88,7 +88,7 @@ A local `npx tauri build` also makes the updater's signed bundle, so it needs th
 
 ### Releasing
 
-Bump `version` in `package.json` (the app takes its version from there), commit, and push a tag `v<version>`. The Release workflow checks the tag against the version, runs `npm run check`, builds and publishes the Release: the `.dmg`, plus the updater's `Board.app.tar.gz`, its `.sig` and `latest.json`.
+Bump `version` in `package.json` (the app takes its version from there), commit, and push a tag `v<version>`. The Release workflow checks the tag against the version, runs `npm run check`, builds and publishes the Release: the `.dmg`, plus the updater's `MattBoard.app.tar.gz`, its `.sig` and `latest.json`.
 
 ## License
 

@@ -69,7 +69,7 @@ pub fn show_board<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
-/// Quits the app, from the popover's "Quit Board": closing the Board window only hides it.
+/// Quits the app, from the popover's "Quit MattBoard": closing the Board window only hides it.
 #[tauri::command]
 pub fn quit_board<R: Runtime>(app: AppHandle<R>) {
     app.exit(0);

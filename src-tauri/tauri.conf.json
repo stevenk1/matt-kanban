@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Board",
+  "productName": "MattBoard",
   "version": "../package.json",
   "identifier": "com.mattkanban.board",
   "build": {
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Board",
+        "title": "MattBoard",
         "width": 1200,
         "height": 760,
         "minWidth": 800,

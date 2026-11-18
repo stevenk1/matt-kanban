@@ -1,7 +1,7 @@
 // The Board updating itself (ADR 0002): at launch and every 24 hours after, the shell asks the
 // GitHub Releases' latest.json (plugins.updater in tauri.conf.json) for a newer version. A check
 // that fails (no network yet at login) is tried again at the next hourly wake. When there is a
-// newer version, a native dialog asks "Board X is available. Install and restart?": Install
+// newer version, a native dialog asks "MattBoard X is available. Install and restart?": Install
 // downloads it, checks its signature against the public key, installs it and restarts, or says
 // why it couldn't; Later just dismisses it, and the next check asks again. All of it runs here, so
 // no capability grants a window any updater permission (a test in src/invariants.test.ts keeps it
@@ -92,11 +92,11 @@ async fn offer_update<R: Runtime>(app: &AppHandle<R>) -> tauri_plugin_updater::R
 }
 
 fn update_prompt(version: &str) -> String {
-    format!("Board {version} is available. Install and restart?")
+    format!("MattBoard {version} is available. Install and restart?")
 }
 
 fn install_failure(reason: &str) -> String {
-    format!("Board couldn't install the update: {reason}")
+    format!("MattBoard couldn't install the update: {reason}")
 }
 
 #[cfg(test)]
@@ -105,14 +105,14 @@ mod tests {
 
     #[test]
     fn asks_to_install_the_found_version() {
-        assert_eq!(update_prompt("0.2.0"), "Board 0.2.0 is available. Install and restart?");
+        assert_eq!(update_prompt("0.2.0"), "MattBoard 0.2.0 is available. Install and restart?");
     }
 
     #[test]
     fn says_why_the_update_could_not_be_installed() {
         assert_eq!(
             install_failure("Read-only file system"),
-            "Board couldn't install the update: Read-only file system"
+            "MattBoard couldn't install the update: Read-only file system"
         );
     }
 

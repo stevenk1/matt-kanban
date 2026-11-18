@@ -13,7 +13,7 @@ import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 /** productName in tauri.conf.json, which names the bundles tauri build makes. */
-const PRODUCT = 'Board';
+const PRODUCT = 'MattBoard';
 const ARCH = 'aarch64';
 
 /** Why `tag` can't release package.json's `version`, or null when it is `v<version>`. */
