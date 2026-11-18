@@ -19,7 +19,7 @@ Run `npm run check`. The pre-commit hook runs it as well, so a red commit can't 
 
 ## Known gaps
 
-A gap you find but leave (out of scope, a different file's bug, a race seen once) becomes a ticket: a `.scratch/<feature>/issues/NN-<slug>.md` under the Feature it belongs to, with `**Status:** needs-triage`, what you saw, and how to reproduce it. Name the file in your report. The Board then shows it, where a line in a report or story log is forgotten.
+A gap you find but leave (out of scope, a different file's bug, a race seen once) becomes a ticket: a `.scratch/<feature>/issues/NN-<slug>.md` under the Feature it belongs to, with `**Status:** needs-triage`, what you saw, and how to reproduce it. Name the file in your report. The Board then shows it, where a line in a report or story log is forgotten. `.scratch/` is gitignored, so a worktree has none: there, put the gap in your report with its Feature, what you saw and how to reproduce it, and the session that started you files the ticket in the main checkout.
 
 ## Running the app
 
@@ -41,7 +41,7 @@ A gap you find but leave (out of scope, a different file's bug, a race seen once
 - an env var;
 - a fixture.
 
-Mouse, keyboard and AppleScript UI actions stay with the developer. A missed click once landed in their browser.
+Mouse, keyboard and AppleScript UI actions stay with the developer. A missed click once landed in their browser. Focus stays with the developer too: your windows open unfocused and stay behind theirs. Capture motion by freezing it at a frame (a paused animation with a negative delay) rather than bringing a window forward, since a keystroke of theirs would land in whichever window has focus.
 
 - **Throwaway data:** `BOARD_DEV_SCAN_ROOT=<clean absolute folder> npm run app`, debug builds only. It adds that folder as the first scan root, with read and watch access, alongside the saved roots. It is never written to `settings.json`. Fill it with `npm run dev-fixture -- <folder>`: a Project with real git worktrees, built from the repo root, so it works under a worktree guard that refuses git elsewhere. `npm run dev-fixture -- <folder> worktree <name>` adds a worktree while the app runs. Edit the files to watch the Board react, then delete the folder. Pass the folder's real path (`/private/tmp/…`, not `/tmp/…`): git records real paths, and a worktree outside the scan root's spelling is skipped. A bad value is ignored with an `Ignoring BOARD_DEV_SCAN_ROOT=…` line on stderr.
 - **Real Projects** under the developer's scan roots are read-only to you as well as to the app.
