@@ -58,7 +58,12 @@
   color: var(--muted);
 }
 
+/* A wide table scrolls sideways by itself: the Feature pane clips sideways overflow. As a block,
+   its rows sit in an anonymous table that inherits border-collapse, so the borders stay. */
 .md table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
   border-collapse: collapse;
   margin-bottom: 8px;
 }
