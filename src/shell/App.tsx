@@ -3,13 +3,15 @@
 // hands it to the Board view with the Done window, and the opener that takes a Ticket to VS Code
 // or GitHub. Every Board read is also published for the rest of the shell (board-events.ts),
 // which the menu-bar extra (menu-bar.ts) and the Settings window (settings-window.ts) hear; a
-// Ticket clicked in the popover is revealed in the view, and changed Settings restart the reading.
+// Ticket clicked in the popover (or named by BOARD_DEV_START, dev-start.ts) is revealed in the view,
+// and changed Settings restart the reading.
 // Checked by hand, not by automated tests (spec, "Thin Tauri shell").
 import { useEffect, useState } from 'react';
 import type { Board } from '../board/board';
 import { readBoard } from '../board/read-board';
 import { BoardView, type RevealRequest } from '../ui/BoardView';
 import { publish } from './board-events';
+import { startDevStart } from './dev-start';
 import { startMenuBar } from './menu-bar';
 import { startRefresh, type BoardState } from './refresh';
 import { sendSavedSettings, startSettingsLink } from './settings-window';
@@ -30,8 +32,10 @@ export function App() {
   const [addFolderError, setAddFolderError] = useState<string | null>(null);
 
   // Both started before the refresh below, so they hear the first Board read.
-  useEffect(() => startMenuBar((ticketId) => setReveal({ ticketId })), []);
+  const revealTicket = (ticketId: string) => setReveal({ ticketId });
+  useEffect(() => startMenuBar(revealTicket), []);
   useEffect(() => startSettingsLink(setSettings), []);
+  useEffect(() => startDevStart(revealTicket), []);
 
   useEffect(() => {
     // Loading the Settings also grants reading their scan roots, so it comes before any read.

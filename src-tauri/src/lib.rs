@@ -5,9 +5,12 @@
 // It also owns the menu-bar extra's tray icon and popover window (menu_bar.rs), and the
 // Settings window, the Settings file and the scan roots added in Settings (settings.rs,
 // scan_roots.rs), with "Settings…" in the app menu, and checks for and installs updates
-// (updater.rs). A debug build titles its Board window by its dev-server port and, for a
-// README screenshot shoot (BOARD_DEV_SHOOT), sets the app's appearance and reads only the dev
-// scan root; a release build reads neither variable.
+// (updater.rs). A debug build titles its Board window by its dev-server port, opens in the state
+// BOARD_DEV_START names (dev_start.rs) and, for a README screenshot shoot (BOARD_DEV_SHOOT), sets
+// the app's appearance and reads only the dev scan root; a release build reads none of these
+// variables.
+#[cfg(debug_assertions)]
+mod dev_start;
 mod menu_bar;
 mod scan_roots;
 mod settings;
@@ -17,7 +20,7 @@ use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_window_state::StateFlags;
 
 pub fn run() {
-    tauri::Builder::default()
+    let board = tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_opener::init())
@@ -42,7 +45,10 @@ pub fn run() {
             dress_dev_windows(app, shoot);
             settings::setup(app, shoot.is_some())?;
             updater::setup(app);
-            Ok(menu_bar::setup(app)?)
+            menu_bar::setup(app)?;
+            #[cfg(debug_assertions)]
+            dev_start::setup(app);
+            Ok(())
         })
         .on_window_event(menu_bar::on_window_event)
         .invoke_handler(tauri::generate_handler![
@@ -53,12 +59,14 @@ pub fn run() {
             settings::open_settings
         ])
         .build(tauri::generate_context!())
-        .expect("error while building the Board")
-        .run(|app, event| {
-            if let tauri::RunEvent::Reopen { .. } = event {
-                menu_bar::show_board(app);
-            }
-        });
+        .expect("error while building the Board");
+    #[cfg(debug_assertions)]
+    let board = dev_start::run_unfocused(board);
+    board.run(|app, event| {
+        if let tauri::RunEvent::Reopen { .. } = event {
+            menu_bar::show_board(app);
+        }
+    });
 }
 
 /// Debug builds title the Board window with their dev-server port ("Board (dev :1432)"), so an

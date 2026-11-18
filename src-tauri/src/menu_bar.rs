@@ -1,17 +1,18 @@
 // The menu-bar extra's native half: the tray icon, and showing and hiding the popover window
 // under it. The UI sets the icon's title (the Ready count) and fills the popover; see
-// src/shell/menu-bar.ts. Checked by hand (spec, "Thin Tauri shell").
+// src/shell/menu-bar.ts. BOARD_DEV_START=popover (dev_start.rs) shows the popover through
+// `show_popover` too. Checked by hand (spec, "Thin Tauri shell").
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
-use tauri::{App, AppHandle, Manager, Runtime, Window, WindowEvent};
+use tauri::{App, AppHandle, Manager, Runtime, WebviewWindow, Window, WindowEvent};
 use tauri_plugin_positioner::{Position, WindowExt};
 
 // The tray id and the window labels are copies of those in src/shell/window-protocol.ts (and
 // tauri.conf.json); change them together.
 /// The tray icon's id; the UI finds the icon by it to set its title.
-const TRAY_ID: &str = "ready";
-const BOARD_WINDOW: &str = "main";
+pub const TRAY_ID: &str = "ready";
+pub const BOARD_WINDOW: &str = "main";
 pub const POPOVER_WINDOW: &str = "popover";
 
 /// When losing focus last hid the popover. Clicking the tray icon takes focus from an open
@@ -86,12 +87,16 @@ fn toggle_popover<R: Runtime>(app: &AppHandle<R>) {
     if hidden_at.is_some_and(|at| at.elapsed() < SAME_CLICK) {
         return;
     }
-    log_failure(
-        "place the popover",
-        popover.move_window_constrained(Position::TrayBottomCenter),
-    );
-    log_failure("show the popover", popover.show());
+    show_popover(&popover, Position::TrayBottomCenter);
     log_failure("focus the popover", popover.set_focus());
+}
+
+/// Places the popover at `position` (kept on screen when under the tray icon) and shows it.
+/// Showing makes it the app's key window but doesn't bring the app forward: only `set_focus`
+/// takes focus from another app.
+pub fn show_popover<R: Runtime>(popover: &WebviewWindow<R>, position: Position) {
+    log_failure("place the popover", popover.move_window_constrained(position));
+    log_failure("show the popover", popover.show());
 }
 
 fn log_failure(action: &str, result: tauri::Result<()>) {

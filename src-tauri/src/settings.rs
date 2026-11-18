@@ -13,7 +13,8 @@
 // Board at a throwaway folder: it is granted like a picked folder, loaded as the first scan root
 // and never saved. During a README screenshot shoot (BOARD_DEV_SHOOT, read in lib.rs) only the dev
 // scan root is read, not the saved ones, and the Settings file is never written. A release build
-// reads neither variable.
+// reads neither variable. BOARD_DEV_START=settings (dev_start.rs) opens the Settings window
+// unfocused, through `show_settings_unfocused`.
 // Checked by hand (spec, "Thin Tauri shell"), apart from scan_roots.rs's unit tests.
 use crate::scan_roots::{scan_root, scan_roots_in, ScanRoots};
 use std::path::{Path, PathBuf};
@@ -143,18 +144,34 @@ pub async fn open_settings<R: Runtime>(app: AppHandle<R>) -> Result<(), String> 
 fn show_settings<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     let window = match app.get_webview_window(SETTINGS_WINDOW) {
         Some(window) => window,
-        None => WebviewWindowBuilder::new(app, SETTINGS_WINDOW, WebviewUrl::App("settings.html".into()))
-            .title("Settings")
-            .inner_size(460.0, 560.0)
-            .resizable(false)
-            .minimizable(false)
-            .maximizable(false)
-            .center()
-            .build()?,
+        None => settings_window(app).build()?,
     };
     window.unminimize()?;
     window.show()?;
     window.set_focus()
+}
+
+/// Opens the Settings window without taking focus, for BOARD_DEV_START=settings (dev_start.rs).
+/// It opens behind the developer's windows, where WebKit wouldn't draw it unless told to.
+#[cfg(debug_assertions)]
+pub fn show_settings_unfocused<R: Runtime>(app: &AppHandle<R>) {
+    use tauri::utils::config::BackgroundThrottlingPolicy;
+    let window = settings_window(app)
+        .focused(false)
+        .background_throttling(BackgroundThrottlingPolicy::Disabled);
+    if let Err(error) = window.build() {
+        eprintln!("Couldn't open Settings: {error}");
+    }
+}
+
+fn settings_window<R: Runtime>(app: &AppHandle<R>) -> WebviewWindowBuilder<'_, R, AppHandle<R>> {
+    WebviewWindowBuilder::new(app, SETTINGS_WINDOW, WebviewUrl::App("settings.html".into()))
+        .title("Settings")
+        .inner_size(460.0, 560.0)
+        .resizable(false)
+        .minimizable(false)
+        .maximizable(false)
+        .center()
 }
 
 /// macOS's standard menus (the app menu with About, Hide and Quit, then File, Edit, View, Window
