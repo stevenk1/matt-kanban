@@ -145,7 +145,7 @@ function NoScanRoot({ onAddFolder }: { onAddFolder: () => void }) {
   return (
     <main className="board-no-scan-root">
       <h1>Pick the folder that holds your projects</h1>
-      <p>Every folder in it with docs/agents/issue-tracker.md shows on the Board. You can add more in Settings.</p>
+      <p>Every folder in it with docs/agents/issue-tracker.md shows in MattBoard. You can add more in Settings.</p>
       <button type="button" onClick={onAddFolder}>
         Add Folder…
       </button>

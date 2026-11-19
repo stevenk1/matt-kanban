@@ -99,7 +99,7 @@ describe('SettingsView: hidden Projects', () => {
   it('lists every Project found, shown ones ticked, and a hidden one by its folder name, unticked', () => {
     renderSettings();
 
-    const group = screen.getByRole('group', { name: 'Show on the Board' });
+    const group = screen.getByRole('group', { name: 'Show in MattBoard' });
     const boxes = within(group)
       .getAllByRole('checkbox')
       .map((box) => [box.closest('label')?.textContent, (box as HTMLInputElement).checked]);

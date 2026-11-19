@@ -1,4 +1,4 @@
-// The menu-bar popover (seam 2): the Ready Tickets grouped by Project, then "Open Board…",
+// The menu-bar popover (seam 2): the Ready Tickets grouped by Project, then "Open MattBoard…",
 // "Settings…", the "Open at login" toggle and "Quit MattBoard". It renders whatever Board value it
 // is given; the shell shows it in a small window under the tray icon and acts on the clicks.
 import { hasScanRoot, type Board, type Feature, type Project, type Ticket } from '../board/board';
@@ -65,7 +65,7 @@ export function ReadyPopover({
       ))}
       <hr className="pop-sep" />
       <button type="button" className="pop-item" onClick={onOpenBoard}>
-        Open Board…
+        Open MattBoard…
       </button>
       <button type="button" className="pop-item" onClick={onOpenSettings}>
         Settings…

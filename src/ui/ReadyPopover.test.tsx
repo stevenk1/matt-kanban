@@ -90,20 +90,20 @@ describe('ReadyPopover', () => {
     expect(onOpenBoard).not.toHaveBeenCalled();
   });
 
-  it('opens the Board from "Open Board…"', async () => {
+  it('opens the Board window from "Open MattBoard…"', async () => {
     const { onReveal, onOpenBoard } = renderPopover(board);
 
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Open Board…' }));
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Open MattBoard…' }));
 
     expect(onOpenBoard).toHaveBeenCalledOnce();
     expect(onReveal).not.toHaveBeenCalled();
   });
 
-  it('ends with "Open Board…", "Settings…", "Open at login" and "Quit MattBoard", in that order', () => {
+  it('ends with "Open MattBoard…", "Settings…", "Open at login" and "Quit MattBoard", in that order', () => {
     renderPopover(board);
 
     const buttons = screen.getAllByRole('button').map((button) => button.textContent);
-    expect(buttons.slice(-4)).toEqual(['Open Board…', 'Settings…', 'Open at login', 'Quit MattBoard']);
+    expect(buttons.slice(-4)).toEqual(['Open MattBoard…', 'Settings…', 'Open at login', 'Quit MattBoard']);
   });
 
   it('quits from "Quit MattBoard"', async () => {
@@ -153,18 +153,18 @@ describe('ReadyPopover', () => {
     expect(onOpenAtLoginChange).not.toHaveBeenCalled();
   });
 
-  it('says when nothing is Ready, and still offers "Open Board…"', () => {
+  it('says when nothing is Ready, and still offers "Open MattBoard…"', () => {
     renderPopover(boardWith({ readAt: NOW, projects: [project('beta', [feature('Old work', [ticket('01', 'done')])])] }));
 
     expect(screen.getByRole('heading', { name: 'Nothing Ready' })).toBeInTheDocument();
     expect(screen.queryAllByRole('list')).toHaveLength(0);
-    expect(screen.getByRole('button', { name: 'Open Board…' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open MattBoard…' })).toBeInTheDocument();
   });
 
   it('says no folders are picked yet, rather than nothing Ready, until a scan root is picked', () => {
     renderPopover({ readAt: NOW, scanRoots: [], projects: [] });
 
     expect(screen.getByRole('heading', { name: 'No folders picked' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Open Board…' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open MattBoard…' })).toBeInTheDocument();
   });
 });

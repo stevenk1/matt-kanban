@@ -1,6 +1,6 @@
 # Matt Kanban
 
-A read-only board that shows the tickets produced by Matt Pocock's skills across every project under the folders the user picks, in one place.
+MattBoard: a read-only board that shows the tickets produced by Matt Pocock's skills across every project under the folders the user picks, in one place.
 
 ## Language
 

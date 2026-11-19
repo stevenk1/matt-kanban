@@ -6,7 +6,7 @@ A read-only macOS app that shows the tickets made by [Matt Pocock's skills](http
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/board-dark.png">
-  <img src="docs/screenshots/board-light.png" width="800" alt="The Board window: Projects and a Story in a step in the sidebar, a Project's Features with their Ready, Blocked and Done counts, and a Ticket opened in its detail view">
+  <img src="docs/screenshots/board-light.png" width="800" alt="The MattBoard window: Projects and a Story in a step in the sidebar, a Project's Features with their Ready, Blocked and Done counts, and a Ticket opened in its detail view">
 </picture>
 
 ## Install
@@ -16,14 +16,14 @@ A read-only macOS app that shows the tickets made by [Matt Pocock's skills](http
 
 ## First launch
 
-The Board asks for the folder that holds your projects, and shows every Project in it (see [What it shows](#what-it-shows)).
+MattBoard asks for the folder that holds your projects, and shows every Project in it (see [What it shows](#what-it-shows)).
 
 The number of Ready Tickets sits in the menu bar. Click it to open the popover, which lists them by Project:
 
 <p>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/popover-dark.png">
-    <img src="docs/screenshots/popover-light.png" width="320" alt="The menu-bar popover: 7 Ready Tickets grouped by Project, then Open Board, Settings, Open at login and Quit Board">
+    <img src="docs/screenshots/popover-light.png" width="320" alt="The menu-bar popover: 7 Ready Tickets grouped by Project, then Open MattBoard, Settings, Open at login and Quit MattBoard">
   </picture>
   <br>
   <em>The popover, opened from the Ready count in the menu bar.</em>
@@ -42,11 +42,11 @@ MattBoard checks the Releases at launch and once a day. When there is a new vers
 - **The menu bar**: the number of Ready Tickets, and a popover that lists them.
 - **Stories** (optional): see [Story files](#story-files).
 
-The Board never writes to your projects. Its capabilities grant read access only to the folders you pick, and a test checks that they stay read-only.
+MattBoard never writes to your projects. Its capabilities grant read access only to the folders you pick, and a test checks that they stay read-only.
 
 ## Story files
 
-A Story is one run of an agent loop in a Project: what it's for and which step it's on. The Board lists the Stories that are mid-step in its sidebar. Stories are optional: if none of your Projects keeps any, the section doesn't show.
+A Story is one run of an agent loop in a Project: what it's for and which step it's on. MattBoard lists the Stories that are mid-step in its sidebar. Stories are optional: if none of your Projects keeps any, the section doesn't show.
 
 Any tool can write them. A Story is a markdown file at `.scratch/stories/<slug>.md` in a Project:
 

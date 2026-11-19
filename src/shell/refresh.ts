@@ -87,7 +87,7 @@ export function startRefresh({ read, watchSetOf, watch, listenForFocus, onState,
     try {
       board = await read();
     } catch (error) {
-      if (!stopped) report({ readError: `Couldn't read the Board: ${messageOf(error)}` });
+      if (!stopped) report({ readError: `MattBoard couldn't read your Projects: ${messageOf(error)}` });
       return;
     }
     if (stopped) return;

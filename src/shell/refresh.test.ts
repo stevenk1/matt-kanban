@@ -164,7 +164,7 @@ describe('startRefresh', () => {
     await scheduler.failRead('gh timed out');
     expect(scheduler.states.at(-1)).toEqual({
       board: boardRead(1),
-      readError: "Couldn't read the Board: gh timed out",
+      readError: "MattBoard couldn't read your Projects: gh timed out",
       watchError: null,
     });
 
@@ -178,7 +178,7 @@ describe('startRefresh', () => {
     const scheduler = start();
     await scheduler.failRead('no scan root');
     expect(scheduler.states).toEqual([
-      { board: null, readError: "Couldn't read the Board: no scan root", watchError: null },
+      { board: null, readError: "MattBoard couldn't read your Projects: no scan root", watchError: null },
     ]);
 
     await scheduler.elapse(60_000);

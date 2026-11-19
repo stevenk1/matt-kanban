@@ -79,7 +79,7 @@ export function SettingsView({ settings, projects, openAtLogin, onChange, onOpen
 
       <fieldset className="settings-section">
         <legend>
-          <h2>Show on the Board</h2>
+          <h2>Show in MattBoard</h2>
         </legend>
         <ul className="settings-box settings-projects">
           {listedProjects(projects, hiddenProjects).map(({ name, dir }) => (
