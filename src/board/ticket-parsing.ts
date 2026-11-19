@@ -55,7 +55,7 @@ type TicketFound = {
 };
 
 /**
- * The Ticket with its state from its status alone: Done, Won't fix, or Ready until
+ * The Ticket with its state from its status alone: Done, Won't fix, Your turn, or Ready until
  * `withBlockerStates` looks up its blockers.
  */
 export function parsedTicket({ featureKey, num, title, status, blockedBy, body, updated, location }: TicketFound): ParsedTicket {
@@ -63,7 +63,7 @@ export function parsedTicket({ featureKey, num, title, status, blockedBy, body, 
     id: `${featureKey}/${num}`,
     num,
     title,
-    state: status.value === 'done' ? 'done' : status.value === 'wontfix' ? 'wontfix' : 'ready',
+    state: stateOfStatus(status.value),
     rawStatus: status.value ?? status.raw,
     statusNote: status.note,
     unknownStatus: status.value === null,
@@ -78,11 +78,19 @@ export function parsedTicket({ featureKey, num, title, status, blockedBy, body, 
   return { ticket, blockedBy };
 }
 
+function stateOfStatus(value: string | null): Ticket['state'] {
+  if (value === 'done') return 'done';
+  if (value === 'wontfix') return 'wontfix';
+  if (value === 'ready-for-human') return 'yourturn';
+  return 'ready';
+}
+
 /**
- * The Ticket states once blockers are looked up within the Feature: a Ticket that is
- * neither Done nor Won't fix is Blocked while any of its blockers is neither, else Ready.
- * A blocker number with no Ticket in the Feature doesn't block; the raw `Blocked by`
- * text becomes the note instead.
+ * The Ticket states once blockers are looked up within the Feature. Done, Won't fix and Your
+ * turn come from the status alone and keep it; a Your turn Ticket's open blockers are only
+ * noted. Any other Ticket is Blocked while any of its blockers is neither Done nor Won't fix
+ * (a Your turn blocker blocks), else Ready. A blocker number with no Ticket in the Feature
+ * doesn't block; the raw `Blocked by` text becomes the note instead.
  */
 export function withBlockerStates(parsedTickets: ParsedTicket[]): Ticket[] {
   const byNum = new Map(parsedTickets.map(({ ticket }) => [ticket.num, ticket]));
@@ -95,6 +103,7 @@ export function withBlockerStates(parsedTickets: ParsedTicket[]): Ticket[] {
       const blocker = byNum.get(num);
       return blocker !== undefined && !isDoneOrWontFix(blocker.state);
     });
+    if (ticket.state === 'yourturn') return { ...ticket, openBlockers, blockerNote };
     return { ...ticket, state: openBlockers.length > 0 ? 'blocked' : 'ready', openBlockers, blockerNote };
   });
 }

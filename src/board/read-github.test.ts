@@ -150,15 +150,16 @@ describe('readBoard: GitHub Projects', () => {
     ]);
   });
 
-  it("counts an open wontfix issue as Won't fix, and one with no triage label as Ready with an unknown status", async () => {
+  it("counts an open wontfix issue as Won't fix, a ready-for-human one as Your turn, and one with no triage label as Ready with an unknown status", async () => {
     const board = await readGitHubProject({
       issues: [
         issue(1, { title: 'Spec: Launcher' }),
         issue(2, { labels: ['enhancement', 'wontfix'] }),
         issue(3, { labels: ['enhancement'] }),
         issue(4, { labels: ['enhancement', 'needs-info'] }),
+        issue(5, { labels: ['ready-for-human'] }),
       ],
-      subIssues: { 1: [2, 3, 4] },
+      subIssues: { 1: [2, 3, 4, 5] },
     });
 
     expect(
@@ -167,6 +168,7 @@ describe('readBoard: GitHub Projects', () => {
       ['#2', 'wontfix', 'wontfix', false],
       ['#3', 'ready', '', true],
       ['#4', 'ready', 'needs-info', false],
+      ['#5', 'yourturn', 'ready-for-human', false],
     ]);
   });
 

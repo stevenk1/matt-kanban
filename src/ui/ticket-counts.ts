@@ -6,14 +6,14 @@ import { isDoneOrWontFix, type Feature, type Project, type Ticket, type TicketSt
 export type StateCounts = Record<TicketState, number>;
 
 export function countStates(tickets: Ticket[]): StateCounts {
-  const counts: StateCounts = { blocked: 0, ready: 0, done: 0, wontfix: 0 };
+  const counts: StateCounts = { blocked: 0, ready: 0, yourturn: 0, done: 0, wontfix: 0 };
   for (const ticket of tickets) counts[ticket.state]++;
   return counts;
 }
 
 /** What a progress bar and its "x/y done" count out of: Won't fix Tickets are left out. */
 export function progressTotal(counts: StateCounts): number {
-  return counts.done + counts.ready + counts.blocked;
+  return counts.done + counts.yourturn + counts.ready + counts.blocked;
 }
 
 /**
@@ -25,9 +25,10 @@ export function isFinished(feature: Feature): boolean {
   return feature.tickets.every((ticket) => isDoneOrWontFix(ticket.state));
 }
 
-export function readyCount(projects: Project[]): number {
+/** How many Tickets in these Projects are in this state: the Ready counts, and the popover's headings. */
+export function countIn(projects: Project[], state: TicketState): number {
   return projects.reduce(
-    (sum, project) => sum + project.features.reduce((n, f) => n + countStates(f.tickets).ready, 0),
+    (sum, project) => sum + project.features.reduce((n, f) => n + countStates(f.tickets)[state], 0),
     0,
   );
 }

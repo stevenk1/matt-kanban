@@ -1,8 +1,9 @@
 // The right pane of design C: the selected Feature's own board, its Tickets in Blocked,
-// Ready and Done columns. Done shows only the Tickets Done within the Done window unless
+// Ready and Done columns, with a Your turn column before Done when it has any. Done shows only the Tickets Done within the Done window unless
 // "Show all Done" is on; Won't fix Tickets join it only when "Show Won't fix" is on.
 import type { Feature, Project, Ticket, TicketState } from '../board/board';
 import { TicketCard, type CardProps } from './TicketCard';
+import { STATE_LABELS } from './TicketMeta';
 import './mini-board.css';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -30,6 +31,7 @@ export function MiniBoard({ project, feature, now, doneWindowDays, toggles, onTo
     (t) =>
       (t.state === 'done' && (toggles.showAllDone || inWindow(t))) || (t.state === 'wontfix' && toggles.showWontFix),
   );
+  const yourTurn = feature.tickets.filter((t) => t.state === 'yourturn');
   const cardProps: CardProps = { worktree: feature.worktree, onOpen };
 
   return (
@@ -59,10 +61,10 @@ export function MiniBoard({ project, feature, now, doneWindowDays, toggles, onTo
         </div>
       </header>
       <div className="mini-columns">
-        <Column label="Blocked" state="blocked" tickets={feature.tickets.filter((t) => t.state === 'blocked')} {...cardProps} />
-        <Column label="Ready" state="ready" tickets={feature.tickets.filter((t) => t.state === 'ready')} {...cardProps} />
+        <Column state="blocked" tickets={feature.tickets.filter((t) => t.state === 'blocked')} {...cardProps} />
+        <Column state="ready" tickets={feature.tickets.filter((t) => t.state === 'ready')} {...cardProps} />
+        {yourTurn.length > 0 && <Column state="yourturn" tickets={yourTurn} {...cardProps} />}
         <Column
-          label="Done"
           state="done"
           tickets={shownDone}
           footer={olderDone > 0 && !toggles.showAllDone ? `${olderDone} older than ${doneWindowDays} days` : null}
@@ -74,14 +76,14 @@ export function MiniBoard({ project, feature, now, doneWindowDays, toggles, onTo
 }
 
 type ColumnProps = CardProps & {
-  label: string;
   /** The state the column holds; Won't fix Tickets join Done when shown. */
   state: Exclude<TicketState, 'wontfix'>;
   tickets: Ticket[];
   footer?: string | null;
 };
 
-function Column({ label, state, tickets, footer, ...cardProps }: ColumnProps) {
+function Column({ state, tickets, footer, ...cardProps }: ColumnProps) {
+  const label = STATE_LABELS[state];
   return (
     <section className="mini-column" aria-label={label}>
       <h3 className="mini-column-head">

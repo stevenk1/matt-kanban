@@ -1,8 +1,10 @@
-// The menu-bar popover (seam 2): the Ready Tickets grouped by Project, then "Open MattBoard…",
+// The menu-bar popover (seam 2): the Your turn Tickets grouped by Project when there are any,
+// then the Ready ones the same way, then "Open MattBoard…",
 // "Settings…", the "Open at login" toggle and "Quit MattBoard". It renders whatever Board value it
 // is given; the shell shows it in a small window under the tray icon and acts on the clicks.
-import { hasScanRoot, type Board, type Feature, type Project, type Ticket } from '../board/board';
-import { readyCount } from './ticket-counts';
+import { hasScanRoot, type Board, type Feature, type Project, type Ticket, type TicketState } from '../board/board';
+import { countIn } from './ticket-counts';
+import { STATE_LABELS } from './TicketMeta';
 import './ready-popover.css';
 
 type Props = {
@@ -21,8 +23,8 @@ type Props = {
   onQuit: () => void;
 };
 
-type ReadyTicket = { feature: Feature; ticket: Ticket };
-type ProjectGroup = { project: Project; tickets: ReadyTicket[] };
+type ListedTicket = { feature: Feature; ticket: Ticket };
+type ProjectGroup = { project: Project; tickets: ListedTicket[] };
 
 export function ReadyPopover({
   board,
@@ -33,36 +35,24 @@ export function ReadyPopover({
   onOpenAtLoginChange,
   onQuit,
 }: Props) {
-  const total = readyCount(board.projects);
+  const total = countIn(board.projects, 'ready');
   let heading = `${total} Ready`;
   if (!hasScanRoot(board)) heading = 'No folders picked';
   else if (total === 0) heading = 'Nothing Ready';
 
+  const yourTurn = byProject(board.projects, 'yourturn');
+
   return (
     <div className="popover">
-      <h2 className="pop-head">
-        <span className="pop-dot" aria-hidden="true" />
-        {heading}
-      </h2>
-      {readyByProject(board.projects).map(({ project, tickets }) => (
-        <section key={project.dir} className="pop-group">
-          <h3 className="pop-project">{project.name}</h3>
-          <ul aria-label={project.name}>
-            {tickets.map(({ feature, ticket }) => (
-              <li key={ticket.id}>
-                <button
-                  type="button"
-                  className="pop-item"
-                  title={`${feature.title}: ${ticket.num} ${ticket.title}`}
-                  onClick={() => onReveal(ticket.id)}
-                >
-                  <span className="pop-num">{ticket.num}</span> {ticket.title}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+      {yourTurn.length > 0 && (
+        <TicketSection
+          state="yourturn"
+          heading={`${countIn(board.projects, 'yourturn')} ${STATE_LABELS.yourturn}`}
+          groups={yourTurn}
+          onReveal={onReveal}
+        />
+      )}
+      <TicketSection state="ready" heading={heading} groups={byProject(board.projects, 'ready')} onReveal={onReveal} />
       <hr className="pop-sep" />
       <button type="button" className="pop-item" onClick={onOpenBoard}>
         Open MattBoard…
@@ -88,13 +78,51 @@ export function ReadyPopover({
   );
 }
 
-/** Each Project that has Ready Tickets, in Board order, with its Ready Tickets in Feature order. */
-function readyByProject(projects: Project[]): ProjectGroup[] {
+type SectionProps = {
+  state: 'ready' | 'yourturn';
+  heading: string;
+  groups: ProjectGroup[];
+  onReveal: (ticketId: string) => void;
+};
+
+/** A heading with the state's dot, then the state's Tickets under each Project. */
+function TicketSection({ state, heading, groups, onReveal }: SectionProps) {
+  return (
+    <section aria-label={STATE_LABELS[state]}>
+      <h2 className="pop-head">
+        <span className={`pop-dot pop-dot-${state}`} aria-hidden="true" />
+        {heading}
+      </h2>
+      {groups.map(({ project, tickets }) => (
+        <section key={project.dir} className="pop-group">
+          <h3 className="pop-project">{project.name}</h3>
+          <ul aria-label={project.name}>
+            {tickets.map(({ feature, ticket }) => (
+              <li key={ticket.id}>
+                <button
+                  type="button"
+                  className="pop-item"
+                  title={`${feature.title}: ${ticket.num} ${ticket.title}`}
+                  onClick={() => onReveal(ticket.id)}
+                >
+                  <span className="pop-num">{ticket.num}</span> {ticket.title}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </section>
+  );
+}
+
+/** Each Project that has Tickets in this state, in Board order, with those Tickets in Feature order. */
+function byProject(projects: Project[], state: TicketState): ProjectGroup[] {
   return projects
     .map((project) => ({
       project,
       tickets: project.features.flatMap((feature) =>
-        feature.tickets.filter((ticket) => ticket.state === 'ready').map((ticket) => ({ feature, ticket })),
+        feature.tickets.filter((ticket) => ticket.state === state).map((ticket) => ({ feature, ticket })),
       ),
     }))
     .filter((group) => group.tickets.length > 0);

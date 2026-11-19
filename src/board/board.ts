@@ -1,7 +1,8 @@
 // The Board value: everything the Board UI shows, as returned by the Board reader.
 // Shape from the spec's Implementation Decisions, "Board value".
 
-export type TicketState = 'blocked' | 'ready' | 'done' | 'wontfix';
+/** `yourturn` is Your turn: a `ready-for-human` Ticket, whose next step is the developer's. */
+export type TicketState = 'blocked' | 'ready' | 'yourturn' | 'done' | 'wontfix';
 
 /** Done or Won't fix: the Ticket waits on nothing and nothing waits on it. */
 export function isDoneOrWontFix(state: TicketState): boolean {

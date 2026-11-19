@@ -2,7 +2,7 @@
 // Ready count. Selecting one filters the rest of the Board to it.
 import type { ReactNode } from 'react';
 import type { Project, Tracker } from '../board/board';
-import { readyCount } from './ticket-counts';
+import { countIn } from './ticket-counts';
 import './project-list.css';
 
 type Props = {
@@ -19,7 +19,7 @@ export function ProjectList({ projects, selected, onSelect }: Props) {
         <SideButton selected={selected === null} onClick={() => onSelect(null)}>
           <div className="side-row">
             <span className="side-name">All Projects</span>
-            <ReadyCount count={readyCount(projects)} />
+            <ReadyCount count={countIn(projects, 'ready')} />
           </div>
         </SideButton>
       </li>
@@ -29,7 +29,7 @@ export function ProjectList({ projects, selected, onSelect }: Props) {
             <div className="side-row">
               <span className="side-name">{project.name}</span>
               <TrackerBadge tracker={project.tracker} />
-              <ReadyCount count={readyCount([project])} />
+              <ReadyCount count={countIn([project], 'ready')} />
             </div>
             {project.error && <div className="side-error">{project.error}</div>}
           </SideButton>

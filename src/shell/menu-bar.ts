@@ -6,7 +6,7 @@ import type { UnlistenFn } from '@tauri-apps/api/event';
 import { TrayIcon } from '@tauri-apps/api/tray';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { hasScanRoot, type Board } from '../board/board';
-import { readyCount } from '../ui/ticket-counts';
+import { countIn } from '../ui/ticket-counts';
 import { subscribe } from './board-events';
 import { logFailure } from './log-failure';
 import { emitToWindow, listenFor, POPOVER_WINDOW, TRAY_ID } from './window-protocol';
@@ -25,7 +25,7 @@ export function startMenuBar(onReveal: (ticketId: string) => void): () => void {
   const unsubscribe = subscribe((board) => {
     latest = board;
     // No number until a folder is picked: there is nothing to count yet.
-    const title = hasScanRoot(board) ? String(readyCount(board.projects)) : null;
+    const title = hasScanRoot(board) ? String(countIn(board.projects, 'ready')) : null;
     logFailure('set the tray title', tray.then((icon) => icon?.setTitle(title)));
     sendToPopover(board);
   });

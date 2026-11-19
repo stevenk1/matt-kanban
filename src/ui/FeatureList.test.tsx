@@ -38,6 +38,20 @@ describe('BoardView: Feature list', () => {
     expect(screen.getByRole('region', { name: 'Features' })).toHaveTextContent('3 Features');
   });
 
+  it('counts Your turn Tickets on their own, in the total but not as done', () => {
+    renderBoardView(boardWith({
+      readAt: NOW,
+      projects: [project('alpha', [feature('Runtime bump', ticketsIn(['done', 'yourturn', 'yourturn', 'ready', 'blocked'], 1))])],
+    }));
+
+    const [row] = featureRows();
+    expect(row).toHaveTextContent('1 ready');
+    expect(row).toHaveTextContent('2 your turn');
+    expect(row).toHaveTextContent('1 blocked');
+    expect(row).toHaveTextContent('1/5 done');
+    expect(within(row).getByRole('progressbar')).toHaveAttribute('aria-valuemax', '5');
+  });
+
   it("orders the Features by their last change, newest first, whatever their Tickets' times", () => {
     renderBoardView(boardWith({
       readAt: NOW,
@@ -149,6 +163,16 @@ describe('BoardView: Project filter', () => {
     expect(within(sidebar).getByRole('button', { name: /^beta/ })).toHaveTextContent(/1$/);
   });
 
+  it('leaves Your turn Tickets out of the Ready counts', () => {
+    renderBoardView(boardWith({
+      readAt: NOW,
+      projects: [project('alpha', [feature('Runtime bump', ticketsIn(['yourturn', 'yourturn', 'ready'], 1))])],
+    }));
+    const sidebar = screen.getByRole('navigation', { name: 'Projects' });
+
+    expect(within(sidebar).getByRole('button', { name: /^alpha/ })).toHaveTextContent(/1$/);
+  });
+
   it('counts nothing in the Ready counts for a Feature with no Tickets', () => {
     const withoutTickets: Board = {
       ...board,
@@ -209,6 +233,15 @@ describe('BoardView: Hide finished', () => {
 
     await user.click(screen.getByRole('checkbox', { name: 'Hide finished' }));
     expect(featureTitles()).toEqual(['Stopped work item', 'Being specified', 'In triage']);
+  });
+
+  it('keeps showing a Feature whose only Tickets not Done are Your turn', () => {
+    renderBoardView(boardWith({
+      readAt: NOW,
+      projects: [project('alpha', [feature('Checks left to you', ticketsIn(['done', 'yourturn'], 2))])],
+    }));
+
+    expect(featureTitles()).toEqual(['Checks left to you']);
   });
 
   it("judges a Feature with Tickets by its Tickets alone, whatever its own issue says", () => {

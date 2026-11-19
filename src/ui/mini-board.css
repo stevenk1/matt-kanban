@@ -33,7 +33,9 @@
 
 .mini-columns {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Three columns, or four when the Feature has Your turn Tickets. */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: 12px;
   margin-top: 16px;
 }
@@ -77,6 +79,10 @@
 
 .mini-dot-ready {
   background: var(--ready);
+}
+
+.mini-dot-yourturn {
+  background: var(--yourturn);
 }
 
 .mini-dot-done {

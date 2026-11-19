@@ -90,6 +90,40 @@ describe('ReadyPopover', () => {
     expect(onOpenBoard).not.toHaveBeenCalled();
   });
 
+  it('lists the Your turn Tickets grouped by Project above the Ready ones, and reveals the one clicked', async () => {
+    const { onReveal } = renderPopover(boardWith({
+      readAt: NOW,
+      projects: [
+        project('alpha', [
+          feature('Runtime', [
+            ticket('01', 'yourturn', { title: 'Bump runtime' }),
+            ticket('02', 'ready', { title: 'Scan gate' }),
+          ]),
+        ]),
+        project('beta', [feature('Release', [ticket('03', 'yourturn', { title: 'Upload build' })])]),
+      ],
+    }));
+
+    const yourTurn = screen.getByRole('region', { name: 'Your turn' });
+    const ready = screen.getByRole('region', { name: 'Ready' });
+    expect(within(yourTurn).getByRole('heading', { name: '2 Your turn' })).toBeInTheDocument();
+    expect(within(yourTurn).getAllByRole('listitem').map((item) => item.textContent)).toEqual([
+      '01 Bump runtime',
+      '03 Upload build',
+    ]);
+    expect(within(ready).getAllByRole('listitem').map((item) => item.textContent)).toEqual(['02 Scan gate']);
+    expect(yourTurn.compareDocumentPosition(ready) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    await userEvent.setup().click(within(yourTurn).getByRole('button', { name: '01 Bump runtime' }));
+    expect(onReveal).toHaveBeenCalledExactlyOnceWith('alpha/runtime/01');
+  });
+
+  it('shows no Your turn group when no Ticket is Your turn', () => {
+    renderPopover(board);
+
+    expect(screen.queryByRole('region', { name: 'Your turn' })).not.toBeInTheDocument();
+  });
+
   it('opens the Board window from "Open MattBoard…"', async () => {
     const { onReveal, onOpenBoard } = renderPopover(board);
 

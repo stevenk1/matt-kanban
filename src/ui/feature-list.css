@@ -122,6 +122,10 @@
   color: var(--ready);
 }
 
+.count-yourturn {
+  color: var(--yourturn);
+}
+
 .count-blocked {
   color: var(--blocked);
 }
@@ -137,6 +141,10 @@
 
 .bar-done {
   background: var(--done);
+}
+
+.bar-yourturn {
+  background: var(--yourturn);
 }
 
 .bar-ready {

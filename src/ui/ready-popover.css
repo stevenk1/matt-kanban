@@ -31,7 +31,14 @@ html:has(.popover) body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+}
+
+.pop-dot-ready {
   background: var(--ready);
+}
+
+.pop-dot-yourturn {
+  background: var(--yourturn);
 }
 
 .pop-project {

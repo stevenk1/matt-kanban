@@ -375,7 +375,7 @@ describe('readBoard: Ticket status', () => {
     });
   });
 
-  it('keeps the triage statuses that are neither done nor wontfix visible, as Ready', async () => {
+  it('makes ready-for-human Your turn, and keeps needs-triage and needs-info visible, as Ready', async () => {
     await scratch({
       'f/issues/01-human.md': ticket({ status: 'Status: ready-for-human' }),
       'f/issues/02-triage.md': ticket({ status: 'Status: needs-triage' }),
@@ -385,7 +385,7 @@ describe('readBoard: Ticket status', () => {
     const t = await ticketsByNum();
 
     expect(Object.values(t).map((x) => [x.state, x.rawStatus, x.unknownStatus])).toEqual([
-      ['ready', 'ready-for-human', false],
+      ['yourturn', 'ready-for-human', false],
       ['ready', 'needs-triage', false],
       ['ready', 'needs-info', false],
     ]);
@@ -505,6 +505,27 @@ describe('readBoard: Blocked by and Ticket state', () => {
     const t = await ticketsByNum();
 
     expect([t['02'].state, t['03'].state]).toEqual(['done', 'wontfix']);
+  });
+
+  it('keeps a Your turn Ticket in its state with its open blockers noted, and lets it block the Tickets that wait on it', async () => {
+    const HUMAN = '**Status:** ready-for-human';
+    await scratch({
+      'f/issues/01-a.md': ticket({ status: HUMAN, blockedBy: 'None (can start immediately)' }),
+      'f/issues/02-b.md': ticket({ status: HUMAN, blockedBy: '01' }),
+      'f/issues/03-c.md': ticket({ status: READY, blockedBy: '01' }),
+      'f/issues/04-d.md': ticket({ status: READY, blockedBy: '05' }),
+      'f/issues/05-e.md': ticket({ status: DONE }),
+    });
+
+    const t = await ticketsByNum();
+
+    expect(Object.values(t).map((x) => [x.num, x.state, x.openBlockers])).toEqual([
+      ['01', 'yourturn', []],
+      ['02', 'yourturn', ['01']],
+      ['03', 'blocked', ['01']],
+      ['04', 'ready', []],
+      ['05', 'done', []],
+    ]);
   });
 
   it('resolves blockers only within the same Feature', async () => {

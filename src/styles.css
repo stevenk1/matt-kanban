@@ -25,6 +25,7 @@
   /* Ticket states */
   --blocked: #ff9f0a;
   --ready: #30b85a;
+  --yourturn: #af52de;
   --done: #8e8e93;
   color-scheme: light dark;
 }
@@ -42,6 +43,7 @@
     --card: #2c2c2f;
     --shadow: 0 1px 2px #00000066, 0 0 0 0.5px #ffffff14;
     --shadow-hover: 0 2px 6px #00000080, 0 0 0 0.5px #ffffff24;
+    --yourturn: #bf5af2;
   }
 }
 

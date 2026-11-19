@@ -1,5 +1,5 @@
 // The middle pane of design C: the Features of the given Projects, the most recently
-// changed first (by `Feature.updated`), each with a stacked done/ready/blocked progress bar and its counts, or,
+// changed first (by `Feature.updated`), each with a stacked done/your turn/ready/blocked progress bar and its counts, or,
 // for a Feature with no Tickets yet, what it has so far ("Spec, no tickets").
 // "Hide finished" (on by default) hides Features whose Tickets are all Done or Won't fix, and
 // Features with no Tickets whose own issue is closed.
@@ -97,6 +97,7 @@ function FeatureRow({ row, now, selected, onSelect }: RowProps) {
           <ProgressBar counts={counts} total={total} />
           <div className="feature-counts">
             {counts.ready > 0 && <span className="count-ready">{counts.ready} ready</span>}
+            {counts.yourturn > 0 && <span className="count-yourturn">{counts.yourturn} your turn</span>}
             {counts.blocked > 0 && <span className="count-blocked">{counts.blocked} blocked</span>}
             <span className="count-done">
               {counts.done}/{total} done
@@ -121,6 +122,7 @@ function ProgressBar({ counts, total }: { counts: StateCounts; total: number }) 
       aria-valuenow={counts.done}
     >
       <span className="bar-done" style={{ width: width(counts.done) }} />
+      <span className="bar-yourturn" style={{ width: width(counts.yourturn) }} />
       <span className="bar-ready" style={{ width: width(counts.ready) }} />
       <span className="bar-blocked" style={{ width: width(counts.blocked) }} />
     </div>

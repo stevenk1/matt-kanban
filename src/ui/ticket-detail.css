@@ -64,6 +64,10 @@
   background: var(--ready);
 }
 
+.detail-badge-yourturn {
+  background: var(--yourturn);
+}
+
 .detail-badge-done,
 .detail-badge-wontfix {
   background: var(--done);

@@ -35,12 +35,16 @@ _Avoid_: Session, handoff
 ### Ticket states
 
 **Blocked**:
-A Ticket not yet Done that names at least one blocker which is not Done.
+A Ticket not yet Done, Won't fix or Your turn that names at least one blocker which is neither Done nor Won't fix.
 _Avoid_: Waiting, on hold
 
 **Ready**:
-A Ticket not yet Done whose blockers are all Done (or which has none).
+A Ticket not yet Done, Won't fix or Your turn whose blockers are all Done or Won't fix (or which has none): one an agent can pick up.
 _Avoid_: Todo, open, in progress
+
+**Your turn**:
+A Ticket whose status is `ready-for-human`: the agents are finished with it and the next step is the developer's (checks, a CI run, an upload, or building it by hand). It still blocks the Tickets that name it as a blocker.
+_Avoid_: Needs human, awaiting review, in review
 
 **Done**:
 A Ticket whose status is `done`, or whose GitHub issue is closed.

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { boardOf, DAY, feature, featurePane, NOW, project, renderBoardView, selectFeature, ticket } from './board-fixtures';
 
-type ColumnName = 'Blocked' | 'Ready' | 'Done';
+type ColumnName = 'Blocked' | 'Ready' | 'Your turn' | 'Done';
 
 /** The cards in one mini-board column, top to bottom. */
 function cardsIn(name: ColumnName) {
@@ -35,6 +35,33 @@ describe('BoardView: Feature mini-board', () => {
     expect(column('Blocked')).toEqual(['03']);
     expect(column('Ready')).toEqual(['02', '04']);
     expect(column('Done')).toEqual(['01']);
+  });
+
+  it('adds a Your turn column between Ready and Done, its cards noting the blockers not yet Done', async () => {
+    const board = boardOf(
+      feature('Rail page', [
+        ticket('01', 'yourturn'),
+        ticket('02', 'yourturn', { blockers: ['01'], openBlockers: ['01'] }),
+        ticket('03', 'blocked', { blockers: ['01'], openBlockers: ['01'] }),
+        ticket('04', 'done'),
+      ]),
+    );
+    renderBoardView(board);
+    await selectFeature('Rail page');
+
+    const columns = within(featurePane()).getAllByRole('region').map((region) => region.getAttribute('aria-label'));
+    expect(columns).toEqual(['Blocked', 'Ready', 'Your turn', 'Done']);
+    expect(column('Your turn')).toEqual(['01', '02']);
+    expect(column('Blocked')).toEqual(['03']);
+    const [second] = cardsIn('Your turn').slice(1);
+    expect(within(second).getByTitle('Blocked by')).toHaveTextContent('01');
+  });
+
+  it('shows no Your turn column for a Feature with no Your turn Tickets', async () => {
+    renderBoardView(boardOf(feature('Rail page', [ticket('01', 'ready'), ticket('02', 'done')])));
+    await selectFeature('Rail page');
+
+    expect(within(featurePane()).queryByRole('region', { name: 'Your turn' })).toBeNull();
   });
 
   it('shows each card’s number, title, criteria progress, the numbers it waits on and a note marker', async () => {
@@ -181,7 +208,7 @@ describe('BoardView: Feature mini-board', () => {
     const board = boardOf(
       feature('Rail page', [
         ticket('01', 'ready'),
-        ticket('02', 'ready', { rawStatus: 'ready-for-human', statusNote: 'needs a TV to test on' }),
+        ticket('02', 'yourturn', { statusNote: 'needs a TV to test on' }),
         ticket('03', 'ready', { rawStatus: 'needs-info' }),
         ticket('04', 'ready', { rawStatus: 'in progress', unknownStatus: true }),
         ticket('05', 'ready', { rawStatus: '', unknownStatus: true }),
@@ -190,7 +217,8 @@ describe('BoardView: Feature mini-board', () => {
     renderBoardView(board);
     await selectFeature('Rail page');
 
-    const [agent, human, info, odd, none] = cardsIn('Ready');
+    const [agent, info, odd, none] = cardsIn('Ready');
+    const [human] = cardsIn('Your turn');
     expect(agent).not.toHaveTextContent(/ready-for|unknown status/);
     expect(within(human).getByTitle('needs a TV to test on')).toHaveTextContent('ready-for-human');
     expect(info).toHaveTextContent('needs-info');

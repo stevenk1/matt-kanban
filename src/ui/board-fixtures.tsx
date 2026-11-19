@@ -18,7 +18,7 @@ export function ticket(num: string, state: TicketState, extra: Partial<Ticket> =
     num,
     title: `Ticket ${num}`,
     state,
-    rawStatus: state === 'done' || state === 'wontfix' ? state : 'ready-for-agent',
+    rawStatus: rawStatusOf(state),
     statusNote: null,
     unknownStatus: false,
     blockers: [],
@@ -30,6 +30,12 @@ export function ticket(num: string, state: TicketState, extra: Partial<Ticket> =
     body: `# ${num}: Ticket ${num}\n\nBody of ${num}.\n`,
     ...extra,
   };
+}
+
+/** The status a Ticket in this state is usually read from. */
+function rawStatusOf(state: TicketState): string {
+  if (state === 'done' || state === 'wontfix') return state;
+  return state === 'yourturn' ? 'ready-for-human' : 'ready-for-agent';
 }
 
 /** Tickets 01, 02, … in these states, the first updated `daysAgo` days before NOW, each next one a day earlier. */

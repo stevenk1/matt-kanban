@@ -7,6 +7,7 @@ import './ticket-meta.css';
 export const STATE_LABELS: Record<TicketState, string> = {
   blocked: 'Blocked',
   ready: 'Ready',
+  yourturn: 'Your turn',
   done: 'Done',
   wontfix: 'Won’t fix',
 };
